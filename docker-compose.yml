@@ -1,0 +1,60 @@
+services:
+    backend:
+        container_name: stak_saas_backend
+        # platform: linux/amd64
+        build: .
+        tty: true
+        depends_on:
+            - database
+        links:
+            - database
+        networks:
+            - app_network
+        volumes:
+            - .:/var/www/app
+            - ./.docker/php/php.ini:/usr/local/etc/php/conf.d/local.ini
+            - ./.docker/supervisord.conf:/etc/supervisor/supervisord.conf
+
+    # Nginx Service
+    web:
+        image: nginx:alpine
+        container_name: stak_saas_web
+        restart: unless-stopped
+        tty: true
+        ports:
+            - ${EXTERNAL_WEB_PORT}:80
+        depends_on:
+            - backend
+        networks:
+            - app_network
+        volumes:
+            - ./:/var/www/app
+            - ./.docker/nginx/conf.d/:/etc/nginx/conf.d/
+
+    #DB Service
+    database:
+        container_name: stak_saas_database
+        image: mysql:8.0
+        restart: always
+        working_dir: /etc/mysql
+        tty: true
+        ports:
+            - ${EXTERNAL_DB_PORT}:3306
+        volumes:
+            - dbdata:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+            MYSQL_DATABASE: ${DB_DATABASE}
+            MYSQL_USER: ${DB_USERNAME}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+            MYSQL_DEFAULT_AUTHENTICATION_PLUGIN: mysql_native_password
+        networks:
+            - app_network
+
+# Docker Networks
+networks:
+    app_network:
+        driver: bridge
+volumes:
+    dbdata:
+        driver: local
