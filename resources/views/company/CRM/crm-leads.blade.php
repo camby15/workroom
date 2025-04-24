@@ -68,9 +68,13 @@
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Phone</th>
-                                <th>Status</th>
                                 <th>Source</th>
-                                <th>Action</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <!--<th>Contact Person</th>
+                                <!--<th>Contact Person Email</th>
+                                <th>Contact Person Phone</th>
+                                <!-- <th>Action</th> -->
                             </tr>
                         </thead>
                         <tbody>
@@ -133,6 +137,24 @@
                                     <option value="Other">Other</option>
                                 </select>
                                 <label for="leadSource">Source *</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" name="contact_person" id="leadContactPerson" placeholder=" " required>
+                                <label for="leadContactPerson">Contact Person *</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="email" class="form-control" name="contact_person_email" id="leadContactPersonEmail" placeholder=" " required>
+                                <label for="leadContactPersonEmail">Contact Person Email *</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="tel" class="form-control" name="contact_person_phone" id="leadContactPersonPhone" placeholder=" " required>
+                                <label for="leadContactPersonPhone">Contact Person Phone *</label>
                             </div>
                         </div>
                         <div class="col-12">
@@ -240,6 +262,18 @@
                                 <label for="editSource">Source *</label>
                             </div>
                         </div>
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" name="contact_person" id="edit_contact_person" placeholder="Contact Person" required>
+                            <label for="edit_contact_person">Contact Person *</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="email" class="form-control" name="contact_person_email" id="edit_contact_person_email" placeholder="Contact Person Email" required>
+                            <label for="edit_contact_person_email">Contact Person Email *</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" name="contact_person_phone" id="edit_contact_person_phone" placeholder="Contact Person Phone" required>
+                            <label for="edit_contact_person_phone">Contact Person Phone *</label>
+                        </div>
                         <div class="col-12">
                             <div class="form-floating">
                                 <textarea class="form-control" name="notes" id="editNotes" placeholder=" " style="height: 100px"></textarea>
@@ -296,7 +330,14 @@
                     <td>${lead.email}</td>
                     <td>${lead.phone}</td>
                     <td>${lead.source}</td>
-                    <td><span class="badge ${badgeClass}">${lead.status}</span></td>
+                    <td>
+                        <select class="form-select form-select-sm lead-status-select" data-id="${lead.id}">
+                            <option value="New" ${lead.status === 'New' ? 'selected' : ''}>New</option>
+                            <option value="Qualified" ${lead.status === 'Qualified' ? 'selected' : ''}>Qualified</option>
+                            <option value="Unqualified" ${lead.status === 'Unqualified' ? 'selected' : ''}>Unqualified</option>
+                            <option value="Converted" ${lead.status === 'Converted' ? 'selected' : ''}>Converted</option>
+                        </select>
+                    </td>
                     <td>${formattedDate}</td>
                     <td>
                         <div class="d-flex gap-1 justify-content-center">
@@ -316,7 +357,8 @@
                             <button type="button" 
                                 class="btn btn-sm btn-danger delete-lead" 
                                 data-id="${lead.id}" 
-                                data-name="${lead.name}" 
+                                data-name="${lead.name}"
+                                data-action="{{ route('company.leads.destroy', '') }}/${lead.id}" 
                                 title="Delete Lead">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
@@ -714,42 +756,7 @@ fetchLeadData();
 <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 <script>
     $(document).ready(function() {
-<<<<<<< HEAD
-        // Initialize DataTable
-        var table = $('#leads-datatable').DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: '{{ route('company.leads.index') }}',
-            columns: [
-                { data: 'name', name: 'name' },
-                { data: 'email', name: 'email' },
-                { data: 'phone', name: 'phone' },
-                { data: 'source', name: 'source' },
-                { data: 'status', name: 'status' },
-                { data: 'created_at', name: 'created_at' },
-                { 
-                    data: 'action', 
-                    name: 'action', 
-                    orderable: false, 
-                    searchable: false,
-                    className: 'dt-body-center',
-                    createdCell: function (td, cellData, rowData, row, col) {
-                        $(td).css('min-width', '150px');
-                    }
-                }
-            ],
-            drawCallback: function() {
-                $('.action-btn').css({
-                    'opacity': '1',
-                    'visibility': 'visible',
-                    'display': 'inline-flex'
-                });
-            }
-        });
-
-=======
         
->>>>>>> dickson-fixes
         // Handle Add Lead Form Submission
         $('#addLeadForm').on('submit', function(e) {
             e.preventDefault();
@@ -891,6 +898,47 @@ fetchLeadData();
                     }
 
                     // Show error message using SweetAlert
+                    showSafeSweetAlert({
+                        icon: 'error',
+                        title: 'Error!',
+                        html: errorMessage,
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        });
+        
+        // Delegate event to handle status change for dynamically generated rows
+        $('#leads-datatable').on('change', '.lead-status-select', function() {
+            const leadId = $(this).data('id');
+            const newStatus = $(this).val();
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            $.ajax({
+                url: `/company/leads/${leadId}/status`,
+                type: 'POST', // NOT PUT!
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                data: {
+                    status: newStatus,
+                    _method: 'PUT'
+                },
+                success: function(response) {
+                    // Optionally, show a success message
+                    showSafeSweetAlert({
+                        icon: 'success',
+                        title: 'Status Updated',
+                        html: 'Lead status has been updated successfully.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                },
+                error: function(xhr) {
+                    let errorMessage = 'Failed to update status.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
                     showSafeSweetAlert({
                         icon: 'error',
                         title: 'Error!',

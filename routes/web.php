@@ -181,12 +181,12 @@ Route::group(['middleware' => 'auth'], function () {
             Route::put('/{id}',                          [App\Http\Controllers\CRM\CrmLeadsController::class, 'update'])->name('update');
             Route::get('/{id}/edit',                     [App\Http\Controllers\CRM\CrmLeadsController::class, 'edit'])->name('edit');
             Route::delete('/{id}',                       [App\Http\Controllers\CRM\CrmLeadsController::class, 'destroy'])->name('destroy');
-
+            Route::put('/{id}/status',                   [App\Http\Controllers\CRM\CrmLeadsController::class, 'updateStatus'])->name('status');
             Route::post('/bulk-upload',                  [App\Http\Controllers\CRM\CrmLeadsController::class, 'bulkUpload'])->name('bulk-upload');
             Route::get('/download-template',             [App\Http\Controllers\CRM\CrmLeadsController::class, 'downloadTemplate'])->name('download-template');
             // Additional Lead Actions
             Route::post('/schedule-appointment',         [App\Http\Controllers\CRM\CrmLeadsController::class, 'scheduleAppointment'])->name('schedule-appointment');
-            Route::post('/convert-to-customer',          [App\Http\Controllers\CRM\CrmLeadsController::class, 'convertToCustomer'])->name('convert-to-customer');
+            Route::post('/convert-to-opportunity',          [App\Http\Controllers\CRM\CrmLeadsController::class, 'convertToOpportunity'])->name('convert-to-opportunity');
         });
     });
 

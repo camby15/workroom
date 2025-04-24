@@ -18,6 +18,7 @@ class CreateCrmLeadsTable extends Migration
             $table->text('notes')->nullable();
             $table->enum('status', ['New', 'Qualified', 'Unqualified', 'Converted'])->default('New');
             
+            
             // Appointment details
             $table->date('appointment_date')->nullable();
             $table->time('appointment_time')->nullable();

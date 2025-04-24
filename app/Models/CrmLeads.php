@@ -31,6 +31,9 @@ class CrmLeads extends Model
         'source',
         'notes',
         'status',
+        'contact_person',
+        'contact_person_email', 
+        'contact_person_phone',
 
         // Appointment Details
         'appointment_date',

@@ -109,6 +109,9 @@ class CrmLeadsController extends Controller
                 'email' => 'required|email|max:255|unique:crm_leads,email',
                 'phone' => 'required|string|max:20',
                 'source' => 'required|in:Website,Referral,Social Media,Direct,Other',
+                'contact_person' => 'nullable|string|max:255',
+                'contact_person_email' => 'nullable|email|max:255',
+                'contact_person_phone' => 'nullable|string|max:20',
                 'notes' => 'nullable|string|max:1000'
             ]);
 
@@ -121,6 +124,7 @@ class CrmLeadsController extends Controller
                     ->withInput();
             }
 
+
             // Create new lead
             $lead = new CrmLeads();
             $lead->company_id = $companyId;
@@ -128,6 +132,9 @@ class CrmLeadsController extends Controller
             $lead->email = $request->input('email');
             $lead->phone = $request->input('phone');
             $lead->source = $request->input('source');
+            $lead->contact_person = $request->input('contact_person');
+            $lead->contact_person_email = $request->input('contact_person_email');
+            $lead->contact_person_phone = $request->input('contact_person_phone');
             $lead->notes = $request->input('notes', '');
             $lead->status = 'New'; // Default status
             
@@ -250,7 +257,12 @@ class CrmLeadsController extends Controller
             Log::info('Current lead data before update', $lead->toArray());
 
             // Check if this is a status update
-            if ($request->has('status')) {
+            if (
+                $request->ajax() &&
+                $request->has('status') &&
+                // Only 'status' and possibly '_method' fields present (from dropdown)
+                (count($request->all()) === 1 || (count($request->all()) === 2 && $request->has('_method')))
+            ) {
                 return $this->updateStatus($request, $id);
             }
 
@@ -267,6 +279,9 @@ class CrmLeadsController extends Controller
                 'source' => 'nullable|string',
                 'notes' => 'nullable|string|max:1000',
                 'status' => 'nullable|string',
+                'contact_person' => 'nullable|string|max:255',
+                'contact_person_email' => 'nullable|email|max:255',
+                'contact_person_phone' => 'nullable|string|max:20',
                 'appointment_date' => 'nullable|date',
                 'appointment_time' => 'nullable|date_format:H:i',
                 'appointment_type' => 'nullable|string',
@@ -435,9 +450,9 @@ class CrmLeadsController extends Controller
     }
 
     /**
-     * Convert a lead to a customer.
+     * Convert a lead to a opportunity.
      */
-    public function convertToCustomer(Request $request)
+    public function convertToOpportunity(Request $request)
     {
         try {
             // Validate user authentication
@@ -447,7 +462,6 @@ class CrmLeadsController extends Controller
 
             // Get the current company ID
             $companyId = Session::get('selected_company_id');
-            
             if (!$companyId) {
                 return redirect()->back()->with('error', 'Company session expired');
             }
@@ -554,7 +568,7 @@ class CrmLeadsController extends Controller
             $headers = array_shift($csvData);
 
             // Validate headers
-            $requiredHeaders = ['Name', 'Email', 'Phone', 'Source', 'Notes'];
+            $requiredHeaders = ['Name', 'Email', 'Phone', 'Source', 'Contact Person', 'Contact Person Email', 'Contact Person Phone', 'Notes'];
             foreach ($requiredHeaders as $header) {
                 if (!in_array($header, $headers)) {
                     if ($request->ajax()) {
@@ -582,6 +596,9 @@ class CrmLeadsController extends Controller
                     'Email' => 'required|email|unique:crm_leads,email',
                     'Phone' => 'required|string|max:20',
                     'Source' => 'required|in:Website,Referral,Social Media,Direct,Other',
+                    'Contact Person' => 'required|string|max:255',
+                    'Contact Person Email' => 'required|email',
+                    'Contact Person Phone' => 'required|string|max:20',
                     'Notes' => 'nullable|string'
                 ]);
 
@@ -597,6 +614,9 @@ class CrmLeadsController extends Controller
                     'email' => $leadData['Email'],
                     'phone' => $leadData['Phone'],
                     'source' => $leadData['Source'],
+                    'contact_person' => $leadData['Contact Person'],
+                    'contact_person_email' => $leadData['Contact Person Email'],
+                    'contact_person_phone' => $leadData['Contact Person Phone'],
                     'notes' => $leadData['Notes'] ?? null,
                     'status' => 'New', // Default status
                     'created_at' => now(),
@@ -634,9 +654,9 @@ class CrmLeadsController extends Controller
                 ]);
             }
 
-            return redirect()->route('company.leads.index')
+            return redirect()->back()
                 ->with('success', $message)
-                ->with('errors', $errors);
+                ->withErrors($errors);
 
         } catch (\Exception $e) {
             Log::error('Error in bulk lead upload', [
@@ -667,27 +687,109 @@ class CrmLeadsController extends Controller
             $filename = 'Leads Bulk Upload Template.csv';
             $tempFile = tempnam(sys_get_temp_dir(), $filename);
             $handle = fopen($tempFile, 'w');
-    
+        
             // Write the header row
-            $headers = ['Name', 'Email', 'Phone', 'Source', 'Notes'];
+            $headers = [
+                'Name',
+                'Email', 
+                'Phone', 
+                'Source', 
+                'Contact Person', 
+                'Contact Person Email', 
+                'Contact Person Phone', 
+                'Notes'
+            ];
             fputcsv($handle, $headers);
-    
+        
             // Write an example row
             $exampleRow = [
                 'John Doe',
                 'john.doe@example.com',
                 '0243000000',
                 'Referral',
+                'Jane Smith',
+                'jane.smith@example.com',
+                '+1 (555) 123-4567',
                 'Potential client from networking event'
             ];
             fputcsv($handle, $exampleRow);
-    
+        
             fclose($handle);
-    
+        
             return response()->download($tempFile, $filename)->deleteFileAfterSend(true);
         } catch (\Exception $e) {
             Log::error('Error creating leads template: ' . $e->getMessage());
             return back()->with('error', 'Unable to download template');
         }
     }
+    /**
+     * Handle AJAX status update for a lead
+    */
+    public function updateStatus(Request $request, $id)
+    {
+        // Log the incoming request for debugging
+        Log::info('updateStatus called', ['id' => $id, 'request' => $request->all()]);
+
+        try {
+            // Get the company ID from the session
+            $companyId = Session::get('selected_company_id');
+
+            // Find the lead by ID and company ID
+            $lead = CrmLeads::where('id', $id)
+                ->where('company_id', $companyId)
+                ->firstOrFail();
+
+            // Validate the incoming status
+            $request->validate([
+                'status' => 'required|string|in:New,Qualified,Unqualified,Converted'
+            ]);
+
+            // Log status before update
+            Log::info('Status before update', [
+                'lead_id' => $lead->id,
+                'status' => $lead->status,
+                'company_id' => $companyId
+            ]);
+
+            // Update and save the status
+            $lead->status = $request->input('status');
+            $lead->save();
+
+            // Log status after update
+            Log::info('Status after update', [
+                'lead_id' => $lead->id,
+                'status' => $lead->status,
+                'company_id' => $companyId
+            ]);
+
+            // Log successful update
+            Log::info('Lead status updated via AJAX', [
+                'lead_id' => $lead->id,
+                'status' => $lead->status,
+                'company_id' => $companyId
+            ]);
+
+            // Return JSON response
+            return response()->json([
+                'success' => true,
+                'message' => 'Status updated',
+                'data' => $lead
+            ]);
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            Log::error('Error updating lead status', [
+                'message' => $e->getMessage(),
+                'lead_id' => $id,
+                'company_id' => isset($companyId) ? $companyId : null
+            ]);
+
+            // Return error JSON response
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update status',
+                'errors' => [$e->getMessage()]
+            ], 500);
+        }
+    }
+
 }
