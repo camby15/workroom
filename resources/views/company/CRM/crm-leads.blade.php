@@ -351,6 +351,9 @@
                                 data-phone="${lead.phone}"
                                 data-source="${lead.source}"
                                 data-notes="${lead.notes}"
+                                data-contact_person="${lead.contact_person || ''}"
+                                data-contact_person_email="${lead.contact_person_email || ''}"
+                                data-contact_person_phone="${lead.contact_person_phone || ''}"
                                 title="Edit Lead">
                                 <i class="fa-solid fa-pen-to-square"></i>
                             </button>
@@ -584,6 +587,9 @@ fetchLeadData();
             const leadPhone = button.data('phone');
             const leadSource = button.data('source');
             const leadNotes = button.data('notes');
+            const leadContactPerson = button.data('contact_person');
+            const leadContactPersonEmail = button.data('contact_person_email');
+            const leadContactPersonPhone = button.data('contact_person_phone');
 
             // Set the lead ID in the hidden field
             $('#editLeadId').val(leadId);
@@ -594,13 +600,19 @@ fetchLeadData();
             $('#editPhone').val(leadPhone);
             $('#editSource').val(leadSource);
             $('#editNotes').val(leadNotes);
+            $('#edit_contact_person').val(leadContactPerson);
+            $('#edit_contact_person_email').val(leadContactPersonEmail);
+            $('#edit_contact_person_phone').val(leadContactPersonPhone);
 
             console.log('Populated fields:', {
                 name: leadName,
                 email: leadEmail,
                 phone: leadPhone,
                 source: leadSource,
-                notes: leadNotes
+                notes: leadNotes,
+                contact_person: leadContactPerson,
+                contact_person_email: leadContactPersonEmail,
+                contact_person_phone: leadContactPersonPhone
             });
 
             console.log('Showing modal with populated data');
