@@ -366,8 +366,11 @@
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                             <button type="button" 
-                                class="btn btn-sm btn-success convert-lead" 
-                                data-id="${lead.id}" 
+                                class="btn btn-sm btn-success convert-lead"
+                                data-id="${lead.id}"
+                                data-name="${lead.name}"
+                                data-bs-toggle="modal"
+                                data-bs-target="#convertLeadModal"
                                 title="Convert Lead">
                                 <i class="fas fa-exchange-alt"></i>
                             </button>
@@ -701,6 +704,133 @@ fetchLeadData();
                 }
             });
         });
+
+        // Handle Convert Lead to Opportunity (uniform style)
+        $(document).on('click', '.convert-lead', function() {
+            const button = $(this);
+            const leadId = button.data('id');
+            const leadName = button.data('name');
+
+            if (!leadId) {
+                showSafeSweetAlert({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Lead ID is missing. Please contact admin.',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+
+            $('#convertLeadId').val(leadId);
+            $('#opportunityName').val(leadName);
+
+            // Clear all other fields
+            $('#account').val('');
+            $('#stage').val('');
+            $('#amount').val('');
+            $('#expectedRevenue').val('');
+            $('#opportunityCloseDate').val('');
+            $('#probability').val('');
+            $('#description').val('');
+        });
+
+        // AJAX submit for Convert Lead to Opportunity (uniform style)
+        $('#convertLeadForm').on('submit', function(e) {
+            e.preventDefault();
+
+            const form = $(this);
+            const formData = form.serialize();
+
+            $('#submitConvertLead').prop('disabled', true);
+
+            $.ajax({
+                url: form.attr('action'),
+                type: 'POST',
+                data: formData,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    $('#submitConvertLead').prop('disabled', false);
+                    $('#convertLeadModal').modal('hide');
+                    if (response.success) {
+                        showSafeSweetAlert({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: response.message || 'Lead has been converted to opportunity successfully.',
+                            confirmButtonText: 'OK'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.reload();
+                            }
+                        });
+                    } else {
+                        showSafeSweetAlert({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: response.message || 'Failed to convert lead. Please try again.',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    $('#submitConvertLead').prop('disabled', false);
+                    let errorMessage = 'Failed to convert lead. Please try again.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    } else if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        errorMessage = Object.values(xhr.responseJSON.errors).join('<br>');
+                    }
+                    showSafeSweetAlert({
+                        icon: 'error',
+                        title: 'Error!',
+                        html: errorMessage,
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        });
+
+        // Delegate event to handle status change for dynamically generated rows
+        $('#leads-datatable').on('change', '.lead-status-select', function() {
+            const leadId = $(this).data('id');
+            const newStatus = $(this).val();
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            $.ajax({
+                url: `/company/leads/${leadId}/status`,
+                type: 'POST', // NOT PUT!
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                data: {
+                    status: newStatus,
+                    _method: 'PUT'
+                },
+                success: function(response) {
+                    // Optionally, show a success message
+                    showSafeSweetAlert({
+                        icon: 'success',
+                        title: 'Status Updated',
+                        html: 'Lead status has been updated successfully.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                },
+                error: function(xhr) {
+                    let errorMessage = 'Failed to update status.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+                    showSafeSweetAlert({
+                        icon: 'error',
+                        title: 'Error!',
+                        html: errorMessage,
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        });
     });
 </script>
 
@@ -757,6 +887,74 @@ fetchLeadData();
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-primary">Upload</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Convert Lead to Opportunity Modal -->
+<div class="modal fade" id="convertLeadModal" tabindex="-1" aria-labelledby="convertLeadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="convertLeadModalLabel">Convert Lead to Opportunity</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="convertLeadForm" class="needs-validation" action="{{ route('company.leads.convert-to-opportunity') }}" method="POST" novalidate>
+                @csrf
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <input type="hidden" name="lead_id" id="convertLeadId">
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="opportunityName" name="name" placeholder=" " required>
+                            <label for="opportunityName">Opportunity Name</label>
+                            <div class="invalid-feedback">Please enter an opportunity name.</div>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="account" name="account" placeholder=" " required>
+                            <label for="account">Account</label>
+                            <div class="invalid-feedback">Please enter an account name.</div>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <select class="form-select" id="stage" name="stage" required>
+                                <option value="">Select Stage</option>
+                                <option value="Prospecting">Prospecting</option>
+                                <option value="Qualification">Qualification</option>
+                                <option value="Proposal">Proposal</option>
+                                <option value="Negotiation">Negotiation</option>
+                            </select>
+                            <label for="stage">Opportunity Stage</label>
+                            <div class="invalid-feedback">Please select a stage.</div>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="number" class="form-control" id="amount" name="amount" placeholder=" " min="0" step="0.01" required>
+                            <label for="amount">Amount</label>
+                            <div class="invalid-feedback">Please enter a valid amount.</div>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="number" class="form-control" id="expectedRevenue" name="expected_revenue" placeholder=" " min="0" step="0.01">
+                            <label for="expectedRevenue">Expected Revenue (Optional)</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="date" class="form-control" id="opportunityCloseDate" name="close_date" placeholder=" " required>
+                            <label for="opportunityCloseDate">Close Date</label>
+                            <div class="invalid-feedback">Please select a close date.</div>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="number" class="form-control" id="probability" name="probability" placeholder=" " min="0" max="100" step="1" required>
+                            <label for="probability">Probability (%)</label>
+                            <div class="invalid-feedback">Please enter a probability between 0 and 100.</div>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <textarea class="form-control" id="description" name="description" placeholder=" " style="height: 100px"></textarea>
+                            <label for="description">Description (Optional)</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" id="submitConvertLead" class="btn btn-primary">Convert Lead</button>
                 </div>
             </form>
         </div>
@@ -910,47 +1108,6 @@ fetchLeadData();
                     }
 
                     // Show error message using SweetAlert
-                    showSafeSweetAlert({
-                        icon: 'error',
-                        title: 'Error!',
-                        html: errorMessage,
-                        confirmButtonText: 'OK'
-                    });
-                }
-            });
-        });
-        
-        // Delegate event to handle status change for dynamically generated rows
-        $('#leads-datatable').on('change', '.lead-status-select', function() {
-            const leadId = $(this).data('id');
-            const newStatus = $(this).val();
-            const csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-            $.ajax({
-                url: `/company/leads/${leadId}/status`,
-                type: 'POST', // NOT PUT!
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken
-                },
-                data: {
-                    status: newStatus,
-                    _method: 'PUT'
-                },
-                success: function(response) {
-                    // Optionally, show a success message
-                    showSafeSweetAlert({
-                        icon: 'success',
-                        title: 'Status Updated',
-                        html: 'Lead status has been updated successfully.',
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                },
-                error: function(xhr) {
-                    let errorMessage = 'Failed to update status.';
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        errorMessage = xhr.responseJSON.message;
-                    }
                     showSafeSweetAlert({
                         icon: 'error',
                         title: 'Error!',

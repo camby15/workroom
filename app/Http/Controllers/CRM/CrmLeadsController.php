@@ -457,23 +457,47 @@ class CrmLeadsController extends Controller
         try {
             // Validate user authentication
             if (!Auth::check()) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Unauthorized access'
+                    ], 401);
+                }
                 return redirect()->back()->with('error', 'Unauthorized access');
             }
 
             // Get the current company ID
             $companyId = Session::get('selected_company_id');
             if (!$companyId) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Company session expired'
+                    ], 400);
+                }
                 return redirect()->back()->with('error', 'Company session expired');
             }
 
             // Validate input
             $validator = Validator::make($request->all(), [
                 'lead_id' => 'required|exists:crm_leads,id',
-                'customer_category' => 'required|in:partner,vendor,client',
-                'customer_value' => 'required|numeric|min:0'
+                'name' => 'required|string|max:255',
+                'account' => 'required|string|max:255',
+                'stage' => 'required|in:Prospecting,Qualification,Proposal,Negotiation,Closed Won,Closed Lost',
+                'amount' => 'required|numeric|min:0',
+                'expected_revenue' => 'nullable|numeric|min:0',
+                'close_date' => 'required|date',
+                'probability' => 'required|integer|min:0|max:100',
+                'description' => 'nullable|string'
             ]);
 
             if ($validator->fails()) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $validator->errors()->first()
+                    ], 422);
+                }
                 return redirect()->back()
                     ->withErrors($validator)
                     ->withInput();
@@ -484,41 +508,60 @@ class CrmLeadsController extends Controller
                 ->where('company_id', $companyId)
                 ->firstOrFail();
 
-            // Create a new customer
-            $customer = new \App\Models\Customer();
-            $customer->company_id = $companyId;
-            $customer->name = $lead->name;
-            $customer->email = $lead->email;
-            $customer->phone = $lead->phone;
-            $customer->category = $request->input('customer_category');
-            $customer->value = $request->input('customer_value');
-            $customer->status = 'Active';
-            $customer->address = ''; // Optional: Add address if available
-            $customer->sector = ''; // Optional: Add sector if available
+            // Create a new Opportunity
+            $opportunity = new \App\Models\Opportunity();
+            $opportunity->user_id = Auth::id();
+            $opportunity->company_id = $companyId;
+            $opportunity->name = $request->input('name');
+            $opportunity->account = $request->input('account');
+            $opportunity->stage = $request->input('stage');
+            $opportunity->amount = $request->input('amount');
+            $opportunity->expected_revenue = $request->input('expected_revenue');
+            $opportunity->close_date = $request->input('close_date');
+            $opportunity->probability = $request->input('probability');
+            $opportunity->description = $request->input('description');
+            // Add more fields if needed
 
-            if ($customer->save()) {
+            if ($opportunity->save()) {
                 // Mark lead as converted
                 $lead->status = 'Converted';
                 $lead->save();
 
-                Log::info('Lead converted to customer', [
+                Log::info('Lead converted to opportunity', [
                     'lead_id' => $lead->id,
-                    'customer_id' => $customer->id,
+                    'opportunity_id' => $opportunity->id,
                     'company_id' => $companyId
                 ]);
 
-                return redirect()->back()->with('success', 'Lead converted to customer successfully');
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Lead converted to opportunity successfully'
+                    ]);
+                }
+                return redirect()->back()->with('success', 'Lead converted to opportunity successfully');
             }
 
-            return redirect()->back()->with('error', 'Failed to convert lead to customer');
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to convert lead to opportunity'
+                ], 400);
+            }
+            return redirect()->back()->with('error', 'Failed to convert lead to opportunity');
 
         } catch (\Exception $e) {
-            Log::error('Error converting lead to customer', [
+            Log::error('Error converting lead to opportunity', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-
-            return redirect()->back()->with('error', 'Error converting lead to customer: ' . $e->getMessage());
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error converting lead to opportunity: ' . $e->getMessage()
+                ], 500);
+            }
+            return redirect()->back()->with('error', 'Error converting lead to opportunity: ' . $e->getMessage());
         }
     }
 
@@ -741,7 +784,7 @@ class CrmLeadsController extends Controller
 
             // Validate the incoming status
             $request->validate([
-                'status' => 'required|string|in:New,Qualified,Unqualified,Converted'
+                'status' => 'required|string|max:255'
             ]);
 
             // Log status before update
