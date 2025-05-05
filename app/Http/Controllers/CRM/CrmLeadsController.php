@@ -409,6 +409,7 @@ class CrmLeadsController extends Controller
                 'lead_id' => 'required|exists:crm_leads,id',
                 'appointment_date' => 'required|date_format:Y-m-d',
                 'appointment_time' => 'required|date_format:H:i',
+                'appointment_type' => 'required|in:Call,Meeting,Video Conference',
                 'notes' => 'nullable|string|max:1000'
             ]);
 
@@ -426,15 +427,17 @@ class CrmLeadsController extends Controller
             // Update lead with appointment details
             $lead->appointment_date = $request->input('appointment_date');
             $lead->appointment_time = $request->input('appointment_time');
+            $lead->appointment_type = $request->input('appointment_type');
             $lead->appointment_notes = $request->input('notes', '');
-            $lead->status = 'Appointment Scheduled';
+            //$lead->status = 'Qualified';
             $lead->save();
 
             Log::info('Appointment scheduled for lead', [
                 'lead_id' => $lead->id,
                 'company_id' => $companyId,
                 'appointment_date' => $lead->appointment_date,
-                'appointment_time' => $lead->appointment_time
+                'appointment_time' => $lead->appointment_time,
+                'appointment_type' => $lead->appointment_type
             ]);
 
             return redirect()->back()->with('success', 'Appointment scheduled successfully');
@@ -784,7 +787,7 @@ class CrmLeadsController extends Controller
 
             // Validate the incoming status
             $request->validate([
-                'status' => 'required|string|max:255'
+                'status' => 'required|string|in:New,Qualified,Unqualified,Converted'
             ]);
 
             // Log status before update
@@ -835,4 +838,90 @@ class CrmLeadsController extends Controller
         }
     }
 
+    /**
+     * Export leads to CSV.
+     */
+    public function export(Request $request)
+    {
+        try {
+            $companyId = Session::get('selected_company_id');
+            $format = $request->input('format', 'csv');
+
+            $leads = CrmLeads::where('company_id', $companyId)->get();
+
+            // Prepare data for export
+            $exportData = [];
+            $exportData[] = [
+                'Name',
+                'Email',
+                'Phone',
+                'Source',
+                'Notes',
+                'Status',
+                'Contact Person',
+                'Contact Person Email',
+                'Contact Person Phone',
+                'Appointment Date',
+                'Appointment Time',
+                'Appointment Type',
+                'Appointment Notes',
+                'Created At'
+            ];
+            foreach ($leads as $lead) {
+                $exportData[] = [
+                    $lead->name,
+                    $lead->email,
+                    $lead->phone,
+                    $lead->source,
+                    $lead->notes,
+                    $lead->status,
+                    $lead->contact_person,
+                    $lead->contact_person_email,
+                    $lead->contact_person_phone,
+                    $lead->appointment_date,
+                    $lead->appointment_time,
+                    $lead->appointment_type,
+                    $lead->appointment_notes,
+                    $lead->created_at,
+                ];
+            }
+
+            // Only CSV for now (implement Excel if needed)
+            $filename = 'leads_export_' . now()->format('Ymd_His') . '.csv';
+            $handle = fopen('php://memory', 'r+');
+            foreach ($exportData as $row) {
+                fputcsv($handle, $row);
+            }
+            rewind($handle);
+            $csv = stream_get_contents($handle);
+            fclose($handle);
+
+            return response($csv)
+                ->header('Content-Type', 'text/csv')
+                ->header('Content-Disposition', "attachment; filename=\"$filename\"");
+        } catch (\Exception $e) {
+            Log::error('Error exporting leads', ['error' => $e->getMessage()]);
+            return back()->with('error', 'Failed to export leads.');
+        }
+    }
+
+    /**
+     * Get all scheduled appointments (leads with appointment fields set)
+     */
+    public function getAppointments(Request $request)
+    {
+        $companyId = Session::get('selected_company_id');
+        if (!$companyId) {
+
+            return response()->json(['data' => []]);
+        }
+
+        $appointments = \App\Models\CrmLeads::where('company_id', $companyId)
+            ->whereNotNull('appointment_date')
+            ->orderBy('appointment_date', 'desc')
+            ->get();
+
+        return response()->json(['data' => $appointments]);
+    }
+    
 }

@@ -59,12 +59,16 @@
                         <a href="{{ route('company.leads.download-template') }}" class="btn btn-outline-primary">
                             <i class="fa-solid fa-download me-1"></i> Download Template
                         </a>
+                        <button class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#exportLeadsModal">
+                            <i class="fa-solid fa-file-export me-1"></i> Export Leads
+                        </button>
                     </div>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-centered table-hover dt-responsive nowrap w-100" id="leads-datatable">
                         <thead>
                             <tr>
+                                <th>#</th>
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Phone</th>
@@ -88,8 +92,31 @@
                           
                         </ul>
                     </nav>
+
+
+                    <div class="card mt-4">
+                        <div class="card-body">
+                            <h5 class="mb-3">Scheduled Appointments</h5>
+                            <div class="table-responsive">
+                                <table class="table table-centered table-hover w-100" id="appointments-table">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Lead Name</th>
+                                            <th>Date</th>
+                                            <th>Time</th>
+                                            <th>Type</th>
+                                            <th>Notes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Appointment rows will be inserted here by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                  
-                    
                 </div>
             </div>
         </div>
@@ -178,34 +205,38 @@
 <div class="modal fade" id="scheduleAppointmentModal" tabindex="-1" aria-labelledby="scheduleAppointmentModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="scheduleAppointmentModalLabel">Schedule Appointment</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form id="scheduleAppointmentForm" action="" method="POST">
+            <form id="scheduleAppointmentForm" action="{{ route('company.leads.schedule-appointment') }}" method="POST">
                 @csrf
                 <input type="hidden" name="lead_id" id="appointmentLeadId">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="scheduleAppointmentModalLabel">Schedule Appointment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
                 <div class="modal-body">
-                    <div class="form-floating mb-3">
-                        <input type="date" class="form-control" name="appointment_date" id="appointment_date" placeholder=" " required>
-                        <label for="appointment_date">Date *</label>
+                    <div class="mb-3">
+                        <label for="appointmentLeadName" class="form-label">Appointment Name (Lead)</label>
+                        <input type="text" class="form-control" id="appointmentLeadName" readonly>
                     </div>
-                    <div class="form-floating mb-3">
-                        <input type="time" class="form-control" name="appointment_time" id="appointment_time" placeholder=" " required>
-                        <label for="appointment_time">Time *</label>
+                    <div class="mb-3">
+                        <label for="appointment_date" class="form-label">Date *</label>
+                        <input type="date" class="form-control" name="appointment_date" id="appointment_date" required>
                     </div>
-                    <div class="form-floating mb-3">
-                        <select class="form-select" name="appointment_type" id="appointment_type">
-                            <option value="" selected disabled>Select type</option>
+                    <div class="mb-3">
+                        <label for="appointment_time" class="form-label">Time *</label>
+                        <input type="time" class="form-control" name="appointment_time" id="appointment_time" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="appointment_type" class="form-label">Type *</label>
+                        <select class="form-select" name="appointment_type" id="appointment_type" required>
+                            <option value="" disabled selected>Select type</option>
                             <option value="Call">Call</option>
                             <option value="Meeting">Meeting</option>
                             <option value="Video Conference">Video Conference</option>
                         </select>
-                        <label for="appointment_type">Type *</label>
                     </div>
-                    <div class="form-floating mb-3">
-                        <textarea class="form-control" name="appointment_notes" id="appointment_notes" placeholder=" " style="height: 100px"></textarea>
-                        <label for="appointment_notes">Notes</label>
+                    <div class="mb-3">
+                        <label for="appointment_notes" class="form-label">Notes</label>
+                        <textarea class="form-control" name="notes" id="appointment_notes" rows="3"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -307,15 +338,10 @@
             console.log(response);
             let tableBody = '';
             
-            response.data.forEach(lead => {
-                // Determine badge class based on status
-                let badgeClass = 'bg-secondary';
-                switch(lead.status) {
-                    case 'New': badgeClass = 'bg-info'; break;
-                    case 'Contacted': badgeClass = 'bg-primary'; break;
-                    case 'Qualified': badgeClass = 'bg-success'; break;
-                    case 'Unqualified': badgeClass = 'bg-danger'; break;
-                }
+            // Number of leads
+            response.data.forEach((lead, index) => {
+                // Calculate serial number based on pagination
+                let serialNumber = (response.pagination.per_page * (response.pagination.current_page - 1)) + (index + 1);
                 
                 // Format created date
                 let createdDate = new Date(lead.created_at);
@@ -326,6 +352,7 @@
                 });
                 
                 tableBody += `<tr>
+                    <td>${serialNumber}</td>
                     <td>${lead.name}</td>
                     <td>${lead.email}</td>
                     <td>${lead.phone}</td>
@@ -831,6 +858,197 @@ fetchLeadData();
                 }
             });
         });
+
+        // Export Leads Handler
+        $('#confirmExportLeads').on('click', function(e) {
+            e.preventDefault();
+
+            // SweetAlert2 confirmation before export
+            showSafeSweetAlert({
+                title: 'Export Leads',
+                text: 'Do you want to export all leads as CSV?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, export',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show loading dialog
+                    Swal.fire({
+                        title: 'Exporting...',
+                        html: 'Your download will start shortly.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    // Prepare and submit the form via AJAX to get the CSV
+                    const form = $('#exportLeadsForm');
+                    const formData = form.serialize();
+
+                    $.ajax({
+                        url: '{{ route("company.leads.export") }}',
+                        type: 'POST',
+                        data: formData,
+                        xhrFields: {
+                            responseType: 'blob'
+                        },
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(blob, status, xhr) {
+                            Swal.close();
+                            // Extract filename from headers
+                            let filename = "leads_export.csv";
+                            const disposition = xhr.getResponseHeader('Content-Disposition');
+                            if (disposition && disposition.indexOf('attachment') !== -1) {
+                                const matches = /filename="([^"]*)"/.exec(disposition);
+                                if (matches != null && matches[1]) filename = matches[1];
+                            }
+                            // Download the file
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = filename;
+                            document.body.appendChild(a);
+                            a.click();
+                            a.remove();
+                            window.URL.revokeObjectURL(url);
+
+                            showSafeSweetAlert({
+                                icon: 'success',
+                                title: 'Exported!',
+                                text: 'Leads exported successfully.',
+                                confirmButtonText: 'OK'
+                            });
+                            $('#exportLeadsModal').modal('hide');
+                        },
+                        error: function(xhr) {
+                            Swal.close();
+                            let errorMessage = 'Failed to export leads. Please try again.';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMessage = xhr.responseJSON.message;
+                            }
+                            showSafeSweetAlert({
+                                icon: 'error',
+                                title: 'Export Failed!',
+                                html: errorMessage,
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    });
+                }
+            });
+        });
+
+        //Schedule Appointment
+        $(document).on('click', '.schedule-appointment', function() {
+            const leadId = $(this).data('id');
+            const leadName = $(this).closest('tr').find('td').eq(1).text(); // Adjust index if needed
+
+            $('#appointmentLeadId').val(leadId);
+            $('#appointmentLeadName').val(leadName);
+
+            // Clear previous values
+            $('#appointment_date').val('');
+            $('#appointment_time').val('');
+            $('#appointment_type').val('');
+            $('#appointment_notes').val('');
+
+            $('#scheduleAppointmentModal').modal('show');
+        });
+
+        // Function to fetch and display appointments
+        function fetchAppointments() {
+            $.ajax({
+                url: '{{ route("company.leads.appointments.all") }}',
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    console.log('Appointments response:', response);
+                    let tableBody = '';
+                    
+                    if (response.data && response.data.length > 0) {
+                        response.data.forEach((appointment, index) => {
+                            tableBody += `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${appointment.name || 'N/A'}</td>
+                                    <td>${appointment.appointment_date || 'N/A'}</td>
+                                    <td>${appointment.appointment_time || 'N/A'}</td>
+                                    <td>${appointment.appointment_type || 'N/A'}</td>
+                                    <td>${appointment.appointment_notes || 'N/A'}</td>
+                                </tr>
+                            `;
+                        });
+                    } else {
+                        tableBody = '<tr><td colspan="6" class="text-center">No scheduled appointments found</td></tr>';
+                    }
+                    
+                    $('#appointments-table tbody').html(tableBody);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching appointments:', { status, error, response: xhr.responseText });
+                    $('#appointments-table tbody').html('<tr><td colspan="6" class="text-center text-danger">Failed to load appointments. Please try again.</td></tr>');
+                }
+            });
+        }
+
+        // Call fetchAppointments when the page loads
+        $(document).ready(function() {
+            fetchAppointments();
+            
+            // Also fetch appointments after scheduling a new one
+            $('#scheduleAppointmentForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                const form = $(this);
+                const formData = form.serialize();
+                
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        // Close the modal
+                        $('#scheduleAppointmentModal').modal('hide');
+                        // Reset the form
+                        form[0].reset();
+                        // Refresh the appointments table
+                        fetchAppointments();
+                        // Show success message
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: 'Appointment scheduled successfully',
+                            confirmButtonText: 'OK'
+                        });
+                    },
+                    error: function(xhr) {
+                        let errorMessage = 'Failed to schedule appointment';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        } else if (xhr.responseJSON && xhr.responseJSON.errors) {
+                            errorMessage = Object.values(xhr.responseJSON.errors).join('<br>');
+                        }
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            html: errorMessage,
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
+            });
+        });
     });
 </script>
 
@@ -960,7 +1178,30 @@ fetchLeadData();
         </div>
     </div>
 </div>
-
+<!-- Export Leads Modal -->
+<div class="modal fade" id="exportLeadsModal" tabindex="-1" aria-labelledby="exportLeadsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exportLeadsModalLabel">Export Leads</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="exportLeadsForm" method="POST">
+                    @csrf
+                    <div class="mb-3">
+                        <label for="exportFormat" class="form-label">Select Export Format</label>
+                        <select class="form-select" id="exportFormat" name="format">
+                            <option value="csv">CSV</option>
+                            <!-- Add Excel if implemented -->
+                        </select>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="confirmExportLeads">Export</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 @push('script-bottom')
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>

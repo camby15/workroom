@@ -185,8 +185,10 @@ Route::group(['middleware' => 'auth'], function () {
             Route::post('/bulk-upload',                  [App\Http\Controllers\CRM\CrmLeadsController::class, 'bulkUpload'])->name('bulk-upload');
             Route::get('/download-template',             [App\Http\Controllers\CRM\CrmLeadsController::class, 'downloadTemplate'])->name('download-template');
             // Additional Lead Actions
+            Route::post('/export',                       [App\Http\Controllers\CRM\CrmLeadsController::class, 'export'])->name('export');
             Route::post('/schedule-appointment',         [App\Http\Controllers\CRM\CrmLeadsController::class, 'scheduleAppointment'])->name('schedule-appointment');
-            Route::post('/convert-to-opportunity',          [App\Http\Controllers\CRM\CrmLeadsController::class, 'convertToOpportunity'])->name('convert-to-opportunity');
+            Route::get('/appointments/all',              [App\Http\Controllers\CRM\CrmLeadsController::class, 'getAppointments'])->name('appointments.all');
+            Route::post('/convert-to-opportunity',       [App\Http\Controllers\CRM\CrmLeadsController::class, 'convertToOpportunity'])->name('convert-to-opportunity');
         });
     });
 

@@ -63,10 +63,10 @@
 <div id="notificationArea" class="mb-3"></div>
 
 <!-- Search/Filter Options -->
-<div class="mb-3 form-floating">
+<!--<div class="mb-3 form-floating">
     <input type="text" id="searchOpportunity" class="form-control" placeholder=" " aria-label="Search" style="width: 350px;">
     <label for="searchOpportunity">Search Opportunities...</label>
-</div>
+</div>-->
 
 <!-- Export Opportunities Modal -->
 <div class="modal fade" id="exportOpportunitiesModal" tabindex="-1" aria-labelledby="exportOpportunitiesModalLabel" aria-hidden="true">
@@ -93,18 +93,27 @@
 </div>
 
 <!-- Export Opportunities Button -->
-<button id="exportOpportunities" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#exportOpportunitiesModal">Export Opportunities</button>
+<!--<button id="exportOpportunities" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#exportOpportunitiesModal">Export Opportunities</button>-->
 
 <!-- Opportunities Table -->
 <div class="row">
     <div class="col-12">
         <div class="card p-3 border-0 shadow-sm">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
                     <h4 class="header-title mb-0">Opportunities</h4>
-                    <button class="btn btn-primary" data-toggle="tooltip" title="New Opportunity" data-bs-toggle="modal" data-bs-target="#addOpportunityModal">
-                        <i class="fas fa-plus me-1"></i> New Opportunity
-                    </button>
+                    <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
+                        <button class="btn btn-primary" data-toggle="tooltip" title="New Opportunity" data-bs-toggle="modal" data-bs-target="#addOpportunityModal">
+                            <i class="fas fa-plus me-1"></i> New Opportunity
+                        </button>
+                        <button id="exportOpportunities" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#exportOpportunitiesModal">
+                            Export Opportunities
+                        </button>
+                        <div class="form-floating" style="width: 250px;">
+                            <input type="text" id="searchOpportunity" class="form-control" placeholder=" " aria-label="Search">
+                            <label for="searchOpportunity">Search Opportunities...</label>
+                        </div>
+                    </div>
                 </div>
                 
                 @if($errors->any())
