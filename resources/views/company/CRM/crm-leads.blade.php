@@ -961,6 +961,37 @@ fetchLeadData();
             $('#scheduleAppointmentModal').modal('show');
         });
 
+        // Format date to a more readable format (e.g., "Sun, Aug 31, 2025")
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return 'Invalid Date';
+            
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                weekday: 'short'
+            });
+        }
+
+        // Format time to 12-hour format (e.g., "2:30 PM")
+        function formatTime(timeString) {
+            if (!timeString) return 'N/A';
+            
+            // If time is in format "HH:MM:SS"
+            const timeParts = timeString.split(':');
+            if (timeParts.length >= 2) {
+                const hours = parseInt(timeParts[0]);
+                const minutes = timeParts[1];
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                const hours12 = hours % 12 || 12;
+                return `${hours12}:${minutes} ${ampm}`;
+            }
+            return timeString; // Return as is if format is unexpected
+        }
+
         // Function to fetch and display appointments
         function fetchAppointments() {
             $.ajax({
@@ -979,8 +1010,8 @@ fetchLeadData();
                                 <tr>
                                     <td>${index + 1}</td>
                                     <td>${appointment.name || 'N/A'}</td>
-                                    <td>${appointment.appointment_date || 'N/A'}</td>
-                                    <td>${appointment.appointment_time || 'N/A'}</td>
+                                    <td>${formatDate(appointment.appointment_date) || 'N/A'}</td>
+                                    <td>${formatTime(appointment.appointment_time) || 'N/A'}</td>
                                     <td>${appointment.appointment_type || 'N/A'}</td>
                                     <td>${appointment.appointment_notes || 'N/A'}</td>
                                 </tr>

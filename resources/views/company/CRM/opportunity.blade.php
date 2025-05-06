@@ -62,11 +62,7 @@
 <!-- Notifications Area -->
 <div id="notificationArea" class="mb-3"></div>
 
-<!-- Search/Filter Options -->
-<!--<div class="mb-3 form-floating">
-    <input type="text" id="searchOpportunity" class="form-control" placeholder=" " aria-label="Search" style="width: 350px;">
-    <label for="searchOpportunity">Search Opportunities...</label>
-</div>-->
+
 
 <!-- Export Opportunities Modal -->
 <div class="modal fade" id="exportOpportunitiesModal" tabindex="-1" aria-labelledby="exportOpportunitiesModalLabel" aria-hidden="true">
@@ -93,7 +89,7 @@
 </div>
 
 <!-- Export Opportunities Button -->
-<!--<button id="exportOpportunities" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#exportOpportunitiesModal">Export Opportunities</button>-->
+<!--<button id="exportOpportunities" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#exportOpportunitiesModal">Export Opportunities</button>--><!--
 
 <!-- Opportunities Table -->
 <div class="row">
@@ -607,7 +603,7 @@ function fetchopportunityData(page = 1) {
                         <td>${closeDate}</td>
                         <td>
                             <div class="progress" style="width: 100px;">
-                                <div class="progress-bar bg-success" role="progressbar" style="width: ${opportunity.probability}%"></div>
+                                <div class="progress-bar ${opportunity.probability <= 33 ? 'bg-danger' : opportunity.probability <= 66 ? 'bg-warning' : opportunity.probability <= 100 ? 'bg-success' : 'bg-success'}" role="progressbar" style="width: ${opportunity.probability}%"></div>
                             </div>
                             <span class="ms-2">${opportunity.probability}%</span>
                         </td>
@@ -816,7 +812,7 @@ $(document).ready(function() {
                 <td>${new Date(opportunity.close_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
                 <td>
                     <div class="progress" style="width: 100px;">
-                        <div class="progress-bar bg-success" role="progressbar" style="width: ${opportunity.probability}%"></div>
+                        <div class="progress-bar ${opportunity.probability <= 33 ? 'bg-danger' : opportunity.probability <= 66 ? 'bg-warning' : 'bg-success'}" role="progressbar" style="width: ${opportunity.probability}%"></div>
                     </div>
                     <span class="ms-2">${opportunity.probability}%</span>
                 </td>
