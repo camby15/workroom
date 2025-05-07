@@ -888,8 +888,15 @@ $(document).ready(function() {
                     // Reset form
                     form.reset();
                     
+                    // Refresh the table data to show the new opportunity
+                    fetchopportunityData();
                     // Add opportunity to table and update stats
-                    addOpportunityToTable(response.opportunity);
+                    //addOpportunityToTable(response.opportunity);
+                    //if (response.stats) {
+                        //updateStats(response.stats);
+                    //}
+
+                    // Update stats if available
                     if (response.stats) {
                         updateStats(response.stats);
                     }
@@ -1065,6 +1072,9 @@ $(document).ready(function() {
                     
                     // Close modal and cleanup
                     resetModalState();
+
+                    // Refresh the table data
+                    fetchopportunityData();
                     
                     // Show success message
                     Swal.fire({
