@@ -105,7 +105,7 @@
                         <button id="exportOpportunities" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#exportOpportunitiesModal">
                             Export Opportunities
                         </button>
-                        <div class="form-floating" style="width: 250px;">
+                        <div class="form-floating" style="width: 200px;">
                             <input type="text" id="searchOpportunity" class="form-control" placeholder=" " aria-label="Search">
                             <label for="searchOpportunity">Search Opportunities...</label>
                         </div>
