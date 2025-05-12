@@ -1,0 +1,64 @@
+pipeline {
+    agent any
+
+    environment {
+        PROJECT_DIR = '/usr/srv/test.stak.saas.stakcloud.com'
+        ENV_FILE = '.env-uat'
+        BRANCH_TO_USE = 'main'
+        DOCKER_IMAGE = 'allnett_backend'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                dir(PROJECT_DIR) {
+                    // Checkout the Git repository
+                    git credentialsId: 'global_sisco_git_cred',
+                        url: 'https://gitlab.com/shrinqgroup/stak_saas.git',
+                        branch: BRANCH_TO_USE
+                }
+            }
+        }
+
+        stage('Build and Deploy') {
+            steps {
+                script {
+                    // Navigate to the project directory
+                    dir(PROJECT_DIR) {
+                        // Display current working directory and list files
+                        sh 'pwd'
+                        sh 'ls -la'
+
+                        // Copy the environment file to .env
+                        // sh "cp ${ENV_FILE} .env"
+
+                        // Build and start Docker containers
+                        // sh 'docker-compose -u root build'
+                        // sh 'docker-compose -u root up -d'
+                        sh 'docker-compose restart'
+
+                        sh 'docker-compose exec -u root ${DOCKER_IMAGE} npm install'  // Install dependencies
+                        sh 'docker-compose exec -u root ${DOCKER_IMAGE} npm run build'  // Run the build
+
+                        // Install Composer dependencies and run database migrations
+                        // sh 'docker-compose exec -u root ${DOCKER_IMAGE} composer install'
+                        // sh 'docker-compose exec -u root ${DOCKER_IMAGE} php artisan db:wipe'
+                        // sh 'docker-compose exec -u root ${DOCKER_IMAGE} php artisan migrate:refresh'
+                        sh 'docker-compose exec -u root ${DOCKER_IMAGE} php artisan migrate'
+                        // sh 'docker-compose exec -u root ${DOCKER_IMAGE} php artisan storage:link'
+                        // sh 'docker-compose exec -u root ${DOCKER_IMAGE} php artisan db:seed'
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // Clean up Docker containers if needed
+            dir(PROJECT_DIR) {
+                sh 'docker-compose ps'
+            }
+        }
+    }
+}
