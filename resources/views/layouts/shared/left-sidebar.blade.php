@@ -167,26 +167,6 @@
                             </div>
                         </li>
                         <li>
-                            <a data-bs-toggle="collapse" 
-                               href="#finance" 
-                               aria-expanded="false" 
-                               aria-controls="finance">
-                                <i class="ri-money-dollar-circle-line"></i>
-                                <span>Finance</span>
-                                <span class="menu-arrow"></span>
-                            </a>
-                            <div class="collapse" id="finance">
-                                <ul class="side-nav-third-level">
-                                    <li><a href="{{ route('any', 'company/Finance/managecurency') }}">Manage Currency</a></li>
-                                    <li><a href="{{ route('any', 'company/Finance/account-types') }}">Create Account Type</a></li>
-                                    <li><a href="{{ route('any', 'company/Finance/main-accounts') }}">Main Account Management</a></li>
-                                    <li><a href="{{ route('any', 'company/Finance/sub-accounts') }}">Sub Account Management</a></li>
-                                    <li><a href="{{ route('any', 'company/Finance/account-mapping') }}">Account Mapping</a></li>
-                                    <li><a href="{{ route('any', 'company/Finance/account-categories') }}">Account Categories</a></li>
-                                </ul>
-                            </div>
-                        </li>
-                        <li>
                             <a href="{{ route('any', 'company/MenuManager/menumanager') }}">
                                 <i class="ri-menu-2-fill"></i>
                                 <span>Menu Management</span>
@@ -203,21 +183,6 @@
                                 <i class="ri-mail-settings-line"></i>
                                 <span>Email Template</span>
                             </a>
-                        </li>
-                        <li>
-                            <a data-bs-toggle="collapse" 
-                               href="#productManagement" 
-                               aria-expanded="false" 
-                               aria-controls="productManagement">
-                                <i class="ri-shopping-bag-3-line"></i>
-                                <span>Product Management</span>
-                                <span class="menu-arrow"></span>
-                            </a>
-                            <div class="collapse" id="productManagement">
-                                <ul class="side-nav-third-level">
-                                    <li><a href="{{ route('any', 'company/Product-management/productconfig') }}">Product Configuration</a></li>
-                                </ul>
-                            </div>
                         </li>
                         <li>
                             <a data-bs-toggle="collapse" 
@@ -332,19 +297,19 @@
             </li>
             <li class="side-nav-item">
                 <a data-bs-toggle="collapse" 
-                   href="#productRequest" 
+                   href="#Books" 
                    aria-expanded="false" 
-                   aria-controls="productRequest" 
+                   aria-controls="Books" 
                    class="side-nav-link">
-                    <i class="ri-file-list-2-line"></i>
-                    <span>Product Request</span>
+                    <i class="ri-bank-line"></i>
+                    <span>Books</span>
                     <span class="menu-arrow"></span>
                 </a>
-                <div class="collapse" id="productRequest">
+                <div class="collapse" id="Books">
                     <ul class="side-nav-second-level">
-                        <li><a href="{{ route('any', 'search-request') }}">Search Request</a></li>
-                        <li><a href="{{ route('any', 'my-request') }}">My Request</a></li>
-                        <li><a href="{{ route('any', 'new-request') }}">New Request</a></li>
+                        <li><a href="{{ route('any', 'search-request') }}">Dashboard</a></li>
+                        <li><a href="{{ route('any', 'my-request') }}">Finance Books</a></li>
+                        <li><a href="{{ route('any', 'new-request') }}">Inventory Books</a></li>
                         <li><a href="{{ route('any', 'request-report') }}">Report</a></li>
                     </ul>
                 </div>
@@ -352,19 +317,19 @@
 
             <li class="side-nav-item">
                 <a data-bs-toggle="collapse" 
-                   href="#payment" 
+                   href="#pos" 
                    aria-expanded="false" 
-                   aria-controls="payment" 
+                   aria-controls="pos" 
                    class="side-nav-link">
-                    <i class="ri-bank-card-line"></i>
-                    <span>Payment</span>
+                    <i class="ri-terminal-line"></i>
+                    <span>POS</span>
                     <span class="menu-arrow"></span>
                 </a>
-                <div class="collapse" id="payment">
+                <div class="collapse" id="pos">
                     <ul class="side-nav-second-level">
-                        <li><a href="{{ route('any', 'company/Payments/searchpayment') }}">Search Payment</a></li>
-                        <li><a href="{{ route('any', 'company/Payments/payin') }}">Paying</a></li>
-                        <li><a href="{{ route('any', 'company/Payments/payout') }}">Payout</a></li>
+                        <li><a href="{{ route('any', 'company/POS/dashboard') }}">Dashboard</a></li>
+                        <li><a href="{{ route('any', 'company/POS/sales') }}">Sales</a></li>
+                        <li><a href="{{ route('any', 'company/POS/payout') }}">Payout</a></li>
                     </ul>
                 </div>
             </li>
@@ -386,13 +351,7 @@
                         <li><a href="{{ route('any', 'company/InventoryManagement/inventoryreport') }}">Report</a></li>
                     </ul>
                 </div>
-            </li>
-            <li class="side-nav-item">
-                <a href="{{ route('any', 'id-verification') }}" class="side-nav-link">
-                    <i class="ri-fingerprint-line"></i>
-                    <span>ID Verification</span>
-                </a>
-            </li>
+            
             <li class="side-nav-item">
                 <a data-bs-toggle="collapse" 
                    href="#digitalMarket" 

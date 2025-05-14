@@ -7,7 +7,7 @@
                 <script>
                     document.write(new Date().getFullYear());
                 </script>
-               STAK CLOUD - Powered by<img src="{{ asset('images/colored.png') }}" alt="ShrinQ" height="100" width="150" style="margin-left: -25px;">
+               WorkRoom - Powered by<img src="{{ asset('images/WRLogo.jpg') }}" alt="WorkRoom" height="60" width="100" style="margin-left: -0.3px;">
             </div>
             <div class="col-md-6">
                 <div class="text-md-end footer-links d-none d-md-block">
