@@ -13,7 +13,7 @@
                 <div class="page-title-box">
                     <div class="page-title-right">
                         <ol class="breadcrumb m-0">
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">Attex</a></li>
+                            <li class="breadcrumb-item"><a href="javascript: void(0);">WorkRoom</a></li>
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Pages</a></li>
                             <li class="breadcrumb-item active">Profile</li>
                         </ol>
@@ -29,12 +29,12 @@
                 <div class="card text-center">
                     <div class="card-body">
                         <img
-                            src="/images/users/avatar-1.jpg"
+                            src="{{ Auth::user()->avatar ?? '/images/users/avatar-1.jpg' }}"
                             class="rounded-circle avatar-lg img-thumbnail"
                             alt="profile-image" />
 
-                        <h4 class="mb-1 mt-2">Tosha Minner</h4>
-                        <p class="text-muted">Founder</p>
+                        <h4 class="mb-1 mt-2">{{ Auth::user()->name }}</h4>
+                        <p class="text-muted">{{ Auth::user()->role ?? 'Member' }}</p>
 
                         <button type="button" class="btn btn-success btn-sm mb-2">Follow</button>
                         <button type="button" class="btn btn-danger btn-sm mb-2">Message</button>
@@ -42,27 +42,26 @@
                         <div class="text-start mt-3">
                             <h4 class="fs-13 text-uppercase">About Me :</h4>
                             <p class="text-muted mb-3">
-                                Hi I'm Tosha Minner,has been the industry's standard dummy text ever since the 1500s,
-                                when an unknown printer took a galley of type.
+                                {{ Auth::user()->bio ?? 'No bio available.' }}
                             </p>
                             <p class="text-muted mb-2">
                                 <strong>Full Name :</strong>
-                                <span class="ms-2">Tosha K. Minner</span>
+                                <span class="ms-2">{{ Auth::user()->name }}</span>
                             </p>
 
                             <p class="text-muted mb-2">
                                 <strong>Mobile :</strong>
-                                <span class="ms-2">(123) 123 1234</span>
+                                <span class="ms-2">{{ Auth::user()->phone ?? 'Not provided' }}</span>
                             </p>
 
                             <p class="text-muted mb-2">
                                 <strong>Email :</strong>
-                                <span class="ms-2">user@email.domain</span>
+                                <span class="ms-2">{{ Auth::user()->email }}</span>
                             </p>
 
                             <p class="text-muted mb-1">
                                 <strong>Location :</strong>
-                                <span class="ms-2">USA</span>
+                                <span class="ms-2">{{ Auth::user()->location ?? 'Not provided' }}</span>
                             </p>
                         </div>
 

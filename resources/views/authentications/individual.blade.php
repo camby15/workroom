@@ -3,9 +3,9 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="author" content="Roach" />
-        <meta name="description" content="Company Signup Form" />
-        <link rel="icon" href="{{ asset('images/logo 1.png') }}" />
+        <meta name="author" content="Scolarman" />
+        <meta name="description" content="Individual Signup Form" />
+        <link rel="icon" href="{{ asset('images/WRLogo.jpg') }}" />
         <link rel="stylesheet" href="{{ asset('style/auth-2.css') }}" />
         <link rel="stylesheet" href="{{ asset('style/mediaQuery.css') }}" />
 
@@ -14,7 +14,7 @@
         <!-- SweetAlert2 CDN -->
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-        <title>Stak | Company</title>
+        <title>WorkRoom | Individual</title>
     </head>
     <body id="company-body">
         <div class="picture-roll">
