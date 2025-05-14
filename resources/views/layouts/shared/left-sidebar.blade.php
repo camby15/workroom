@@ -3,10 +3,10 @@
     <!-- Brand Logo Light -->
     <a href="{{ route('any', 'index') }}" class="logo logo-light">
         <span class="logo-lg">
-            <img src="/images/logo_white.png" alt="logo" />
+            <img src="/images/WRLogo.jpg" alt="logo" />
         </span>
         <span class="logo-sm">
-            <img src="/images/logo_white_sm.png" alt="small logo" />
+            <img src="/images/WRLogo.jpg" alt="small logo" />
         </span>
     </a>
 
@@ -422,7 +422,7 @@
                         <li><a href="{{ route('any', 'company/marketing/subscribe') }}">Subscribers</a></li>
                     </ul>
                     <li class="side-nav-item">
-                        <a href="{{ route('any', 'company/LoyaltyPoints/loyalty') }}" class="side-nav-link">
+                        <a href="{{ route('any', '') }}" class="side-nav-link">
                             <i class="ri-star-line"></i>
                             <span>Loyalty</span>
                         </a>

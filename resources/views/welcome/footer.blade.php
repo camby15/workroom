@@ -1,13 +1,13 @@
 <footer class="footer">
     <div class="footer-container">
         <div class="footer-brand">
-            <h1 class="footer-logo">STAK</h1>
+            <h1 class="footer-logo">WorkRoom</h1>
         </div>
         <div class="footer-info">
             <p>Call sales: +233 24 0112912</p>
         </div>
         <div class="footer-links">
-            <p>&copy; 2025 ShrinQ Limited. All rights reserved.</p>
+            <p>&copy; {{ date('Y') }} Wi Technologies. All rights reserved.</p>
             <p class="copyright">
                 Terms and conditions, features, support, pricing, and service options are subject to change without
                 notice.
