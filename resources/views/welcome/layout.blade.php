@@ -4,12 +4,12 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta content="STAK" name="description" />
-        <meta content="STAK" name="ShrinQ Limited" />
-        <title>Stak</title>
+        <meta content="WorkRoom" name="description" />
+        <meta content="WorkRoom" name="Wi Tech" />
+        <title>WorkRoom</title>
         <link rel="stylesheet" href="{{ asset('style/style.css') }}" />
         <!-- webpage logo icon -->
-        <link rel="icon" type="image/x-icon" href="{{ asset('images/STACK LOGO-02.png') }}" />
+        <link rel="icon" type="image/x-icon" href="{{ asset('images/WRLogo.jpg') }}" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link
