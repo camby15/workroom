@@ -33,13 +33,13 @@ body {
 @keyframes animate {
     0%,
     100% {
-        background-image: url(../images/Banner-1.png);
+        background-image: url(../images/ERPPHONE.jpg);
     }
     25% {
-        background-image: url(../images/Banner-6.png);
+        background-image: url(../images/erpphonss.jpg);
     }
     50% {
-        background-image: url(../images/Banner-3.png);
+        background-image: url(../images/commerce.jpg);
     }
     75% {
         background-image: url(../images/Banner-4.png);
