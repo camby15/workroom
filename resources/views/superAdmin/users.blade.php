@@ -76,6 +76,7 @@
                         </table>
                     </div>
                     <div class="mt-3 d-flex flex-wrap gap-2">
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addUserModal">Add User</button>
                         <button class="btn btn-primary btn-sm" id="inviteUserBtn">Invite User</button>
                         <button class="btn btn-secondary btn-sm" id="importUsersBtn">Import Users</button>
                         <button class="btn btn-outline-secondary btn-sm" id="exportUsersBtn">Export Users</button>
