@@ -827,4 +827,336 @@
             return response.json();
         }
     </script>
+
+    <!-- Support Ticket Modals -->
+    <!-- Create Support Ticket Modal -->
+    <div class="modal fade" id="createTicketModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create Support Ticket</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createTicketForm">
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="ticketSubject" placeholder="Subject" required>
+                            <label for="ticketSubject">Subject</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <select class="form-select" id="ticketCategory" required>
+                                <option value="" selected disabled>Select a category</option>
+                                <option value="technical">Technical Issue</option>
+                                <option value="billing">Billing</option>
+                                <option value="account">Account Access</option>
+                                <option value="feature">Feature Request</option>
+                                <option value="general">General Inquiry</option>
+                            </select>
+                            <label for="ticketCategory">Category</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <select class="form-select" id="ticketPriority" required>
+                                <option value="" selected disabled>Select priority</option>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                                <option value="urgent">Urgent</option>
+                            </select>
+                            <label for="ticketPriority">Priority</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <textarea class="form-control" id="ticketDescription" placeholder="Description" style="height: 120px" required></textarea>
+                            <label for="ticketDescription">Description</label>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Attachments</label>
+                            <input type="file" class="form-control" id="ticketAttachments" multiple>
+                            <div class="form-text">Upload relevant screenshots or documents (optional)</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="submitTicket">Create Ticket</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Ticket Modal -->
+    <div class="modal fade" id="viewTicketModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Ticket Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-uppercase text-muted">Ticket Information</h6>
+                            <div class="mb-2">
+                                <strong>Ticket ID:</strong> <span id="viewTicketId"></span>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Subject:</strong> <span id="viewTicketSubject"></span>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Category:</strong> <span id="viewTicketCategory"></span>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Status:</strong> <span id="viewTicketStatus" class="badge"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-uppercase text-muted">Additional Details</h6>
+                            <div class="mb-2">
+                                <strong>Created:</strong> <span id="viewTicketCreated"></span>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Last Updated:</strong> <span id="viewTicketUpdated"></span>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Priority:</strong> <span id="viewTicketPriority" class="badge"></span>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Assigned To:</strong> <span id="viewTicketAssignee"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="text-uppercase text-muted">Description</h6>
+                        <div class="p-3 bg-light rounded" id="viewTicketDescription"></div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="text-uppercase text-muted">Attachments</h6>
+                        <div id="viewTicketAttachments" class="d-flex flex-wrap gap-2">
+                            <!-- Attachments will be populated here -->
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="text-uppercase text-muted">Conversation History</h6>
+                        <div id="ticketConversation" class="ticket-conversation">
+                            <!-- Conversation history will be populated here -->
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6 class="text-uppercase text-muted">Add Reply</h6>
+                        <div class="form-floating mb-2">
+                            <textarea class="form-control" id="ticketReply" placeholder="Your reply" style="height: 100px"></textarea>
+                            <label for="ticketReply">Your reply</label>
+                        </div>
+                        <div class="mb-3">
+                            <input type="file" class="form-control" id="replyAttachments" multiple>
+                            <div class="form-text">Upload attachments (optional)</div>
+                        </div>
+                        <button type="button" class="btn btn-primary" id="submitReply">Send Reply</button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-warning" id="escalateTicket">Escalate</button>
+                    <button type="button" class="btn btn-success" id="resolveTicket">Mark as Resolved</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Ticket Modal -->
+    <div class="modal fade" id="editTicketModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Ticket</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editTicketForm">
+                        <input type="hidden" id="editTicketId">
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="editTicketSubject" placeholder="Subject" required>
+                            <label for="editTicketSubject">Subject</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <select class="form-select" id="editTicketCategory" required>
+                                <option value="technical">Technical Issue</option>
+                                <option value="billing">Billing</option>
+                                <option value="account">Account Access</option>
+                                <option value="feature">Feature Request</option>
+                                <option value="general">General Inquiry</option>
+                            </select>
+                            <label for="editTicketCategory">Category</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <select class="form-select" id="editTicketPriority" required>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                                <option value="urgent">Urgent</option>
+                            </select>
+                            <label for="editTicketPriority">Priority</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <select class="form-select" id="editTicketStatus" required>
+                                <option value="new">New</option>
+                                <option value="open">Open</option>
+                                <option value="pending">Pending</option>
+                                <option value="resolved">Resolved</option>
+                                <option value="closed">Closed</option>
+                            </select>
+                            <label for="editTicketStatus">Status</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <textarea class="form-control" id="editTicketDescription" placeholder="Description" style="height: 120px" required></textarea>
+                            <label for="editTicketDescription">Description</label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="updateTicket">Update Ticket</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assign Ticket Modal -->
+    <div class="modal fade" id="assignTicketModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Assign Ticket</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="assignTicketForm">
+                        <input type="hidden" id="ticketId">
+                        <div class="form-floating mb-3">
+                            <select class="form-select" id="assignmentType" required>
+                                <option value="" selected disabled>Select assignment type</option>
+                                <option value="agent">Assign to Agent</option>
+                                <option value="team">Assign to Team</option>
+                            </select>
+                            <label for="assignmentType">Assignment Type</label>
+                        </div>
+                        <div class="form-floating mb-3 agent-assignment" style="display: none;">
+                            <select class="form-select" id="assignedAgent">
+                                <option value="" selected disabled>Select an agent</option>
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                            <label for="assignedAgent">Assign to Agent</label>
+                        </div>
+                        <div class="form-floating mb-3 team-assignment" style="display: none;">
+                            <select class="form-select" id="assignedTeam">
+                                <option value="" selected disabled>Select a team</option>
+                                <option value="support">Support Team</option>
+                                <option value="technical">Technical Team</option>
+                                <option value="billing">Billing Team</option>
+                            </select>
+                            <label for="assignedTeam">Assign to Team</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <select class="form-select" id="priority" required>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                                <option value="urgent">Urgent</option>
+                            </select>
+                            <label for="priority">Priority</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="date" class="form-control" id="dueDate">
+                            <label for="dueDate">Due Date</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <textarea class="form-control" id="assignmentNotes" placeholder="Notes" style="height: 100px"></textarea>
+                            <label for="assignmentNotes">Assignment Notes</label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveAssignment">Assign Ticket</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ticket Analytics Modal -->
+    <div class="modal fade" id="ticketAnalyticsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Support Ticket Analytics</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card border-0 bg-light">
+                                <div class="card-body text-center">
+                                    <h2 id="totalTickets">0</h2>
+                                    <p class="mb-0">Total Tickets</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card border-0 bg-light">
+                                <div class="card-body text-center">
+                                    <h2 id="openTickets">0</h2>
+                                    <p class="mb-0">Open Tickets</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card border-0 bg-light">
+                                <div class="card-body text-center">
+                                    <h2 id="resolvedTickets">0</h2>
+                                    <p class="mb-0">Resolved</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card border-0 bg-light">
+                                <div class="card-body text-center">
+                                    <h2 id="avgResponseTime">0h</h2>
+                                    <p class="mb-0">Avg. Response</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-uppercase text-muted mb-3">Tickets by Category</h6>
+                            <canvas id="ticketCategoryChart" height="200"></canvas>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-uppercase text-muted mb-3">Tickets by Status</h6>
+                            <canvas id="ticketStatusChart" height="200"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-uppercase text-muted mb-3">Tickets by Priority</h6>
+                            <canvas id="ticketPriorityChart" height="200"></canvas>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-uppercase text-muted mb-3">Resolution Time Trend</h6>
+                            <canvas id="resolutionTimeChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Export Report</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
