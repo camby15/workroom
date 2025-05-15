@@ -243,37 +243,16 @@
                     class="side-nav-link">
                     <i class="ri-group-2-line"></i>
                     <span class="badge bg-success float-end"></span>
-                    <span>Human Resource</span>
+                    <span>HR & Payroll</span>
                     <span class="menu-arrow"></span>
                 </a>
                 <div class="collapse" id="humanResource">
                     <ul class="side-nav-second-level">
-                        <li>
-                            <a data-bs-toggle="collapse" 
-                                href="#companySetup" 
-                                aria-expanded="false" 
-                                aria-controls="companySetup">
-                                <i class="ri-user-settings-line"></i>
-                                <span>Company Setup</span>
-                                <span class="menu-arrow"></span>
-                            </a>
-                            <div class="collapse" id="companySetup">
-                                <ul class="side-nav-third-level">
-                                    <li>
-                                        <a href="{{ route('any', 'company/HumanResource/hrTable') }}">Company</a>
-                                    </li>
-                                    <li>
-                                        <a href="{{ route('any', 'company/HumanResource/list-departments') }}">Department</a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </li>
-                        <li>
-                            <a href="{{ route('any', 'company/HumanResource/list-employees') }}">
-                                <i class="ri-building-line"></i>
-                                <span>Manage Employee</span>
-                            </a>
-                        </li>
+                        <ul class="side-nav-third-level">
+                            <li><a href="{{ route('any', 'company/HumanResource/hrTable') }}">Company</a></li>
+                            <li><a href="{{ route('any', 'company/HumanResource/payroll') }}">Payroll</a></li>
+                            <li><a href="{{ route('any', 'company/HumanResource/list-employees') }}">Manage Employee</a></li>
+                        </ul>
                     </ul>
                 </div>
             </li>
@@ -380,12 +359,6 @@
                         </li>
                         <li><a href="{{ route('any', 'company/marketing/subscribe') }}">Subscribers</a></li>
                     </ul>
-                    <li class="side-nav-item">
-                        <a href="{{ route('any', '') }}" class="side-nav-link">
-                            <i class="ri-star-line"></i>
-                            <span>Loyalty</span>
-                        </a>
-                    </li>
                 </div>
             </li>
         </ul>

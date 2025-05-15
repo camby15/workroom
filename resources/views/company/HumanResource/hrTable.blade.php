@@ -79,8 +79,7 @@
         /* Icon Colors */
         #v-pills-employees-tab i { color: #198754; } /* Green */
         #v-pills-attendance-tab i { color: #0d6efd; } /* Blue */
-        #v-pills-leaves-tab i { color: #ffc107; } /* Yellow */
-        #v-pills-payroll-tab i { color: #dc3545; } /* Red */
+        #v-pills-leaves-tab i { color: #fd7e14; } /* Orange */
         #v-pills-performance-tab i { color: #6c757d; } /* Gray */
         #v-pills-training-tab i { color: #03586a; } /* Cyan */
         #v-pills-benefits-tab i { color: #6610f2; } /* Purple */
@@ -162,9 +161,7 @@
                     <button class="nav-link" id="v-pills-leaves-tab" data-bs-toggle="pill" data-bs-target="#v-pills-leaves" type="button" role="tab" aria-controls="v-pills-leaves" aria-selected="false">
                         <i class="fas fa-umbrella-beach me-2"></i>Leaves
                     </button>
-                    <button class="nav-link" id="v-pills-payroll-tab" data-bs-toggle="pill" data-bs-target="#v-pills-payroll" type="button" role="tab" aria-controls="v-pills-payroll" aria-selected="false">
-                        <i class="fas fa-money-bill-wave me-2"></i>Payroll
-                    </button>
+
                     <button class="nav-link" id="v-pills-performance-tab" data-bs-toggle="pill" data-bs-target="#v-pills-performance" type="button" role="tab" aria-controls="v-pills-performance" aria-selected="false">
                         <i class="fas fa-chart-line me-2"></i>Performance
                     </button>
@@ -273,65 +270,218 @@
 
                     <!-- Attendance Tab -->
                     <div class="tab-pane fade" id="v-pills-attendance" role="tabpanel" aria-labelledby="v-pills-attendance-tab">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0">Attendance</h5>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="fw-bold text-primary"><i class="fas fa-calendar-check me-2"></i>Attendance Management</h4>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Search attendance records..." id="attendance-search">
+                                    <button class="btn btn-outline-secondary" type="button"><i class="fas fa-search"></i></button>
+                                </div>
                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#attendanceModal">
                                     <i class="fas fa-plus me-2"></i>Mark Attendance
                                 </button>
                             </div>
-                            <div class="card-body">
+                        </div>
+                        
+                        <!-- Device Sync Card -->
+                        <div class="card mb-4 shadow-sm border-0 rounded-3 overflow-hidden">
+                            <div class="card-header bg-gradient-primary text-white d-flex justify-content-between align-items-center py-3">
+                                <h5 class="mb-0 fw-bold"><i class="fas fa-wifi me-2"></i>Attendance Device Integration</h5>
+                                <div class="d-flex align-items-center gap-2">
+                                    <button type="button" class="btn btn-light btn-sm" onclick="syncAttendanceDevice()">
+                                        <i class="fas fa-sync-alt me-1"></i>Sync Now
+                                    </button>
+                                    <button type="button" class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#deviceSettingsModal">
+                                        <i class="fas fa-cog me-1"></i>Settings
+                                    </button>
+                                    <div class="dropdown">
+                                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fas fa-file-export me-1"></i>Export
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="exportDropdown">
+                                            <li><a class="dropdown-item" href="#" onclick="exportAttendance('csv')"><i class="fas fa-file-csv me-2 text-success"></i>CSV</a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="exportAttendance('excel')"><i class="fas fa-file-excel me-2 text-success"></i>Excel</a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="exportAttendance('pdf')"><i class="fas fa-file-pdf me-2 text-danger"></i>PDF</a></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#emailReportModal"><i class="fas fa-envelope me-2 text-primary"></i>Email Report</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body py-4">
+                                <div class="row g-3">
+                                    <div class="col-md-6 col-lg-3">
+                                        <div class="card h-100 bg-light border-0 rounded-3 shadow-sm">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="p-2 rounded-circle me-3 bg-primary bg-opacity-10">
+                                                        <i class="fas fa-history text-primary"></i>
+                                                    </div>
+                                                    <h6 class="card-title mb-0 text-primary">Last Sync</h6>
+                                                </div>
+                                                <h5 class="fw-bold mb-1" id="lastSyncStatus">Not synced yet</h5>
+                                                <p class="card-text small text-muted" id="lastSyncTime">Never</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-3">
+                                        <div class="card h-100 bg-light border-0 rounded-3 shadow-sm">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="p-2 rounded-circle me-3 bg-success bg-opacity-10">
+                                                        <i class="fas fa-check-circle text-success"></i>
+                                                    </div>
+                                                    <h6 class="card-title mb-0 text-success">Device Status</h6>
+                                                </div>
+                                                <h5 class="fw-bold mb-1" id="deviceStatus">Offline</h5>
+                                                <p class="card-text small text-muted" id="deviceInfo">No device connected</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-3">
+                                        <div class="card h-100 bg-light border-0 rounded-3 shadow-sm">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="p-2 rounded-circle me-3 bg-info bg-opacity-10">
+                                                        <i class="fas fa-users text-info"></i>
+                                                    </div>
+                                                    <h6 class="card-title mb-0 text-info">Today's Attendance</h6>
+                                                </div>
+                                                <h5 class="fw-bold mb-1" id="todayAttendanceCount">0/0</h5>
+                                                <p class="card-text small text-muted">Employees present</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-3">
+                                        <div class="card h-100 bg-light border-0 rounded-3 shadow-sm">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="p-2 rounded-circle me-3 bg-warning bg-opacity-10">
+                                                        <i class="fas fa-exclamation-triangle text-warning"></i>
+                                                    </div>
+                                                    <h6 class="card-title mb-0 text-warning">Anomalies</h6>
+                                                </div>
+                                                <h5 class="fw-bold mb-1" id="attendanceAnomalies">0</h5>
+                                                <p class="card-text small text-muted">Issues detected</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Attendance Records Card -->
+                        <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+                            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                                <h5 class="mb-0 fw-bold"><i class="fas fa-clipboard-list me-2 text-primary"></i>Attendance Records</h5>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="attendanceFilter" id="today" autocomplete="off" checked>
+                                        <label class="btn btn-outline-primary btn-sm" for="today">Today</label>
+                                        
+                                        <input type="radio" class="btn-check" name="attendanceFilter" id="thisWeek" autocomplete="off">
+                                        <label class="btn btn-outline-primary btn-sm" for="thisWeek">This Week</label>
+                                        
+                                        <input type="radio" class="btn-check" name="attendanceFilter" id="thisMonth" autocomplete="off">
+                                        <label class="btn btn-outline-primary btn-sm" for="thisMonth">This Month</label>
+                                        
+                                        <input type="radio" class="btn-check" name="attendanceFilter" id="custom" autocomplete="off">
+                                        <label class="btn btn-outline-primary btn-sm" for="custom">Custom</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body p-0">
                                 <div class="table-responsive">
-                                    <table class="table table-hover align-middle">
-                                        <thead>
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="bg-light">
                                             <tr>
-                                                <th>Employee</th>
+                                                <th class="ps-4">Employee</th>
                                                 <th>Date</th>
                                                 <th>Clock In</th>
                                                 <th>Clock Out</th>
                                                 <th>Hours</th>
                                                 <th>Status</th>
-                                                <th>Actions</th>
+                                                <th class="text-end pe-4">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td>John Doe</td>
-                                                <td>2025-04-04</td>
-                                                <td>09:00 AM</td>
-                                                <td>06:00 PM</td>
-                                                <td>9.00</td>
-                                                <td><span class="badge bg-success">Present</span></td>
+                                                <td class="ps-4">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="avatar avatar-sm me-2 bg-primary text-white rounded-circle">
+                                                            <span>JD</span>
+                                                        </div>
+                                                        <div>
+                                                            <h6 class="mb-0">John Doe</h6>
+                                                            <small class="text-muted">ID: EMP001</small>
+                                                        </div>
+                                                    </div>
+                                                </td>
                                                 <td>
+                                                    <span class="text-nowrap">2025-04-04</span>
+                                                </td>
+                                                <td>
+                                                    <span class="text-nowrap"><i class="fas fa-sign-in-alt text-success me-1"></i>09:00 AM</span>
+                                                </td>
+                                                <td>
+                                                    <span class="text-nowrap"><i class="fas fa-sign-out-alt text-danger me-1"></i>06:00 PM</span>
+                                                </td>
+                                                <td>
+                                                    <span class="fw-bold">9.00</span>
+                                                </td>
+                                                <td>
+                                                    <div class="d-inline-block px-3 py-1 rounded-pill bg-success bg-opacity-10 text-success fw-bold small">Present</div>
+                                                </td>
+                                                <td class="text-end pe-4">
                                                     <div class="btn-group">
-                                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editAttendanceModal" title="Edit">
+                                                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editAttendanceModal" title="Edit">
                                                             <i class="fas fa-edit"></i>
                                                         </button>
-                                                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAttendanceModal" title="Delete">
+                                                        <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAttendanceModal" title="Delete">
                                                             <i class="fas fa-trash"></i>
                                                         </button>
-                                                        <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#viewAttendanceModal" title="View Details">
+                                                        <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#viewAttendanceModal" title="View Details">
                                                             <i class="fas fa-eye"></i>
                                                         </button>
                                                     </div>
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td>Jane Smith</td>
-                                                <td>2025-04-04</td>
-                                                <td>09:30 AM</td>
-                                                <td>05:30 PM</td>
-                                                <td>8.00</td>
-                                                <td><span class="badge bg-warning">Late</span></td>
+                                                <td class="ps-4">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="avatar avatar-sm me-2 bg-info text-white rounded-circle">
+                                                            <span>JS</span>
+                                                        </div>
+                                                        <div>
+                                                            <h6 class="mb-0">Jane Smith</h6>
+                                                            <small class="text-muted">ID: EMP002</small>
+                                                        </div>
+                                                    </div>
+                                                </td>
                                                 <td>
+                                                    <span class="text-nowrap">2025-04-04</span>
+                                                </td>
+                                                <td>
+                                                    <span class="text-nowrap"><i class="fas fa-sign-in-alt text-warning me-1"></i>09:30 AM</span>
+                                                </td>
+                                                <td>
+                                                    <span class="text-nowrap"><i class="fas fa-sign-out-alt text-danger me-1"></i>05:30 PM</span>
+                                                </td>
+                                                <td>
+                                                    <span class="fw-bold">8.00</span>
+                                                </td>
+                                                <td>
+                                                    <div class="d-inline-block px-3 py-1 rounded-pill bg-warning bg-opacity-10 text-warning fw-bold small">Late</div>
+                                                </td>
+                                                <td class="text-end pe-4">
                                                     <div class="btn-group">
-                                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editAttendanceModal" title="Edit">
+                                                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editAttendanceModal" title="Edit">
                                                             <i class="fas fa-edit"></i>
                                                         </button>
-                                                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAttendanceModal" title="Delete">
+                                                        <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAttendanceModal" title="Delete">
                                                             <i class="fas fa-trash"></i>
                                                         </button>
-                                                        <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#viewAttendanceModal" title="View Details">
+                                                        <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#viewAttendanceModal" title="View Details">
                                                             <i class="fas fa-eye"></i>
                                                         </button>
                                                     </div>
@@ -339,6 +489,16 @@
                                             </tr>
                                         </tbody>
                                     </table>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center p-3 border-top">
+                                    <div class="small text-muted">Showing 2 of 2 records</div>
+                                    <nav aria-label="Attendance pagination">
+                                        <ul class="pagination pagination-sm mb-0">
+                                            <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                            <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+                                        </ul>
+                                    </nav>
                                 </div>
                             </div>
                         </div>
@@ -403,85 +563,6 @@
                                                         </button>
                                                         <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#viewLeaveModal" title="View Details">
                                                             <i class="fas fa-eye"></i>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Payroll Tab -->
-                    <div class="tab-pane fade" id="v-pills-payroll" role="tabpanel" aria-labelledby="v-pills-payroll-tab">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0">Payroll</h5>
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#payrollModal">
-                                    <i class="fas fa-plus me-2"></i>Process Payroll
-                                </button>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-hover align-middle">
-                                        <thead>
-                                            <tr>
-                                                <th>Employee</th>
-                                                <th>Month</th>
-                                                <th>Basic Salary</th>
-                                                <th>Allowances</th>
-                                                <th>Deductions</th>
-                                                <th>Status</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>John Doe</td>
-                                                <td>April 2025</td>
-                                                <td>$5000</td>
-                                                <td>$500</td>
-                                                <td>$200</td>
-                                                <td><span class="badge bg-success">Processed</span></td>
-                                                <td>
-                                                    <div class="btn-group">
-                                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editPayrollModal" title="Edit">
-                                                            <i class="fas fa-edit"></i>
-                                                        </button>
-                                                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deletePayrollModal" title="Delete">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>
-                                                        <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#viewPayrollModal" title="View Details">
-                                                            <i class="fas fa-eye"></i>
-                                                        </button>
-                                                        <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#generatePayslipModal" title="Generate Payslip">
-                                                            <i class="fas fa-file-pdf"></i>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>Jane Smith</td>
-                                                <td>April 2025</td>
-                                                <td>$6000</td>
-                                                <td>$700</td>
-                                                <td>$300</td>
-                                                <td><span class="badge bg-warning">Pending</span></td>
-                                                <td>
-                                                    <div class="btn-group">
-                                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editPayrollModal" title="Edit">
-                                                            <i class="fas fa-edit"></i>
-                                                        </button>
-                                                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deletePayrollModal" title="Delete">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>
-                                                        <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#viewPayrollModal" title="View Details">
-                                                            <i class="fas fa-eye"></i>
-                                                        </button>
-                                                        <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#generatePayslipModal" title="Generate Payslip">
-                                                            <i class="fas fa-file-pdf"></i>
                                                         </button>
                                                     </div>
                                                 </td>
@@ -1339,15 +1420,15 @@
     <div class="modal fade" id="attendanceModal" tabindex="-1" aria-labelledby="attendanceModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-scrollable">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="attendanceModalLabel">Mark Attendance</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="attendanceModalLabel"><i class="fas fa-calendar-check me-2"></i>Mark Attendance</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="attendanceForm">
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h6 class="mb-0">Attendance Details</h6>
+                        <div class="card mb-4 shadow-sm border-0 rounded-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0 fw-bold"><i class="fas fa-info-circle me-2 text-primary"></i>Attendance Details</h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
@@ -1394,8 +1475,348 @@
                             </div>
                         </div>
                         <div class="text-end">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary" onclick="submitAttendanceForm(event)">Save Attendance</button>
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
+                            <button type="submit" class="btn btn-primary" onclick="submitAttendanceForm(event)"><i class="fas fa-save me-2"></i>Save Attendance</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Attendance Modal -->
+    <div class="modal fade" id="editAttendanceModal" tabindex="-1" aria-labelledby="editAttendanceModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="editAttendanceModalLabel"><i class="fas fa-edit me-2"></i>Edit Attendance</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editAttendanceForm">
+                        <input type="hidden" id="editAttendanceId">
+                        <div class="card mb-4 shadow-sm border-0 rounded-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0 fw-bold"><i class="fas fa-info-circle me-2 text-primary"></i>Attendance Details</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 col-lg-4 mb-3">
+                                        <div class="form-floating">
+                                            <select class="form-select" id="editEmployeeId" required disabled>
+                                                <!-- Employee options will be populated via AJAX -->
+                                            </select>
+                                            <label for="editEmployeeId">Employee</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-4 mb-3">
+                                        <div class="form-floating">
+                                            <input type="date" class="form-control" id="editAttendanceDate" required>
+                                            <label for="editAttendanceDate">Date</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-4 mb-3">
+                                        <div class="form-floating">
+                                            <select class="form-select" id="editAttendanceStatus" required>
+                                                <option value="">Select Status</option>
+                                                <option value="present">Present</option>
+                                                <option value="absent">Absent</option>
+                                                <option value="half-day">Half Day</option>
+                                                <option value="leave">Leave</option>
+                                            </select>
+                                            <label for="editAttendanceStatus">Status</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-4 mb-3">
+                                        <div class="form-floating">
+                                            <input type="time" class="form-control" id="editCheckInTime">
+                                            <label for="editCheckInTime">Check-in Time</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-4 mb-3">
+                                        <div class="form-floating">
+                                            <input type="time" class="form-control" id="editCheckOutTime">
+                                            <label for="editCheckOutTime">Check-out Time</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
+                            <button type="submit" class="btn btn-primary" onclick="updateAttendanceForm(event)"><i class="fas fa-save me-2"></i>Update Attendance</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- View Attendance Modal -->
+    <div class="modal fade" id="viewAttendanceModal" tabindex="-1" aria-labelledby="viewAttendanceModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="viewAttendanceModalLabel"><i class="fas fa-eye me-2"></i>Attendance Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="card shadow-sm border-0 rounded-3 mb-4">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-4">
+                                <div class="avatar avatar-lg bg-primary text-white rounded-circle me-3">
+                                    <span id="viewEmployeeInitials">JD</span>
+                                </div>
+                                <div>
+                                    <h5 class="mb-0" id="viewEmployeeName">John Doe</h5>
+                                    <p class="text-muted mb-0" id="viewEmployeeId">EMP001</p>
+                                </div>
+                            </div>
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="p-3 border rounded bg-light">
+                                        <h6 class="text-muted mb-1">Date</h6>
+                                        <p class="mb-0 fw-bold" id="viewAttendanceDate">2025-04-04</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-3 border rounded bg-light">
+                                        <h6 class="text-muted mb-1">Status</h6>
+                                        <div id="viewAttendanceStatus"><span class="badge bg-success">Present</span></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-3 border rounded bg-light">
+                                        <h6 class="text-muted mb-1">Check In</h6>
+                                        <p class="mb-0 fw-bold" id="viewCheckInTime">09:00 AM</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-3 border rounded bg-light">
+                                        <h6 class="text-muted mb-1">Check Out</h6>
+                                        <p class="mb-0 fw-bold" id="viewCheckOutTime">06:00 PM</p>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="p-3 border rounded bg-light">
+                                        <h6 class="text-muted mb-1">Total Hours</h6>
+                                        <p class="mb-0 fw-bold" id="viewTotalHours">9.00 hours</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
+                        <button type="button" class="btn btn-outline-primary" onclick="openEditAttendanceModal()"><i class="fas fa-edit me-2"></i>Edit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Attendance Modal -->
+    <div class="modal fade" id="deleteAttendanceModal" tabindex="-1" aria-labelledby="deleteAttendanceModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteAttendanceModalLabel"><i class="fas fa-trash me-2"></i>Delete Attendance</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="deleteAttendanceId">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-exclamation-triangle text-warning" style="font-size: 5rem;"></i>
+                        <h4 class="mt-3">Confirm Deletion</h4>
+                        <p>Are you sure you want to delete this attendance record? This action cannot be undone.</p>
+                    </div>
+                    <div class="d-flex justify-content-center gap-2">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
+                        <button type="button" class="btn btn-danger" onclick="deleteAttendance()"><i class="fas fa-trash me-2"></i>Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Device Settings Modal -->
+    <div class="modal fade" id="deviceSettingsModal" tabindex="-1" aria-labelledby="deviceSettingsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="deviceSettingsModalLabel"><i class="fas fa-cog me-2"></i>Attendance Device Settings</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="deviceSettingsForm">
+                        <div class="card shadow-sm border-0 rounded-3 mb-4">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0 fw-bold"><i class="fas fa-server me-2 text-primary"></i>Device Connection</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="deviceIp" placeholder="192.168.1.100">
+                                            <label for="deviceIp">Device IP Address</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="devicePort" placeholder="8000">
+                                            <label for="devicePort">Port</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="deviceUsername" placeholder="admin">
+                                            <label for="deviceUsername">Username</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input type="password" class="form-control" id="devicePassword" placeholder="password">
+                                            <label for="devicePassword">Password</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card shadow-sm border-0 rounded-3 mb-4">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0 fw-bold"><i class="fas fa-sync-alt me-2 text-primary"></i>Sync Settings</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <select class="form-select" id="syncFrequency">
+                                                <option value="0">Manual Only</option>
+                                                <option value="15">Every 15 minutes</option>
+                                                <option value="30">Every 30 minutes</option>
+                                                <option value="60">Every hour</option>
+                                                <option value="360">Every 6 hours</option>
+                                                <option value="720">Every 12 hours</option>
+                                                <option value="1440">Once daily</option>
+                                            </select>
+                                            <label for="syncFrequency">Sync Frequency</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input type="time" class="form-control" id="dailySyncTime">
+                                            <label for="dailySyncTime">Daily Sync Time</label>
+                                            <small class="text-muted">Only applies if frequency is set to "Once daily"</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="autoSyncEnabled">
+                                            <label class="form-check-label" for="autoSyncEnabled">Enable Automatic Sync</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-end">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
+                            <button type="button" class="btn btn-primary" onclick="saveDeviceSettings()"><i class="fas fa-save me-2"></i>Save Settings</button>
+                            <button type="button" class="btn btn-success" onclick="testDeviceConnection()"><i class="fas fa-plug me-2"></i>Test Connection</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Email Report Modal -->
+    <div class="modal fade" id="emailReportModal" tabindex="-1" aria-labelledby="emailReportModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="emailReportModalLabel"><i class="fas fa-envelope me-2"></i>Email Attendance Report</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="emailReportForm">
+                        <div class="card shadow-sm border-0 rounded-3 mb-4">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0 fw-bold"><i class="fas fa-file-export me-2 text-primary"></i>Report Parameters</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <select class="form-select" id="reportType">
+                                                <option value="daily">Daily Report</option>
+                                                <option value="weekly">Weekly Report</option>
+                                                <option value="monthly">Monthly Report</option>
+                                                <option value="custom">Custom Date Range</option>
+                                            </select>
+                                            <label for="reportType">Report Type</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <select class="form-select" id="reportFormat">
+                                                <option value="pdf">PDF</option>
+                                                <option value="excel">Excel</option>
+                                                <option value="csv">CSV</option>
+                                            </select>
+                                            <label for="reportFormat">Format</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 date-range-inputs" style="display: none;">
+                                        <div class="form-floating">
+                                            <input type="date" class="form-control" id="reportStartDate">
+                                            <label for="reportStartDate">Start Date</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 date-range-inputs" style="display: none;">
+                                        <div class="form-floating">
+                                            <input type="date" class="form-control" id="reportEndDate">
+                                            <label for="reportEndDate">End Date</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card shadow-sm border-0 rounded-3 mb-4">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0 fw-bold"><i class="fas fa-envelope-open-text me-2 text-primary"></i>Email Details</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-12">
+                                        <div class="form-floating">
+                                            <input type="email" class="form-control" id="recipientEmail" placeholder="email@example.com" required>
+                                            <label for="recipientEmail">Recipient Email</label>
+                                            <small class="text-muted">Use comma to separate multiple emails</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="emailSubject" placeholder="Attendance Report">
+                                            <label for="emailSubject">Subject</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-floating">
+                                            <textarea class="form-control" id="emailMessage" style="height: 100px"></textarea>
+                                            <label for="emailMessage">Message (Optional)</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-end">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
+                            <button type="button" class="btn btn-primary" onclick="sendAttendanceReport()"><i class="fas fa-paper-plane me-2"></i>Send Report</button>
                         </div>
                     </form>
                 </div>
@@ -1464,173 +1885,6 @@
                         <div class="text-end">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                             <button type="submit" class="btn btn-primary" onclick="submitLeaveRequestForm(event)">Submit Request</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Payroll Modal -->
-    <div class="modal fade" id="payrollModal" tabindex="-1" aria-labelledby="payrollModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="payrollModalLabel">Generate Payroll</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="payrollForm">
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h6 class="mb-0">Payroll Details</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6 col-lg-4 mb-3">
-                                        <div class="form-floating">
-                                            <select class="form-select" id="payrollDepartment" required>
-                                                <option value="">Select Department</option>
-                                                <option value="hr">Human Resources</option>
-                                                <option value="it">Information Technology</option>
-                                                <option value="finance">Finance</option>
-                                                <option value="marketing">Marketing</option>
-                                                <option value="operations">Operations</option>
-                                            </select>
-                                            <label for="payrollDepartment">Department</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-lg-4 mb-3">
-                                        <div class="form-floating">
-                                            <select class="form-select" id="payrollMonth" required>
-                                                <option value="">Select Month</option>
-                                                <!-- Month options will be populated via JavaScript -->
-                                            </select>
-                                            <label for="payrollMonth">Month</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-lg-4 mb-3">
-                                        <div class="form-floating">
-                                            <select class="form-select" id="payrollYear" required>
-                                                <option value="">Select Year</option>
-                                                <!-- Year options will be populated via JavaScript -->
-                                            </select>
-                                            <label for="payrollYear">Year</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h6 class="mb-0">Employee Details</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6 col-lg-4 mb-3">
-                                        <div class="form-floating">
-                                            <select class="form-select" id="payrollEmployee" required>
-                                                <option value="">Select Employee</option>
-                                                <!-- Employee options will be populated via AJAX -->
-                                            </select>
-                                            <label for="payrollEmployee">Employee</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-lg-4 mb-3">
-                                        <div class="form-floating">
-                                            <select class="form-select" id="payrollEmployeeType" required>
-                                                <option value="">Select Type</option>
-                                                <option value="full-time">Full Time</option>
-                                                <option value="part-time">Part Time</option>
-                                                <option value="contract">Contract</option>
-                                            </select>
-                                            <label for="payrollEmployeeType">Employee Type</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-lg-4 mb-3">
-                                        <div class="form-floating">
-                                            <input type="text" class="form-control" id="payrollEmployeeLocation" placeholder="Work Location">
-                                            <label for="payrollEmployeeLocation">Work Location</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h6 class="mb-0">Compensation Details</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6 col-lg-4 mb-3">
-                                        <div class="form-floating">
-                                            <input type="number" class="form-control" id="basicSalary" placeholder="0" required>
-                                            <label for="basicSalary">Basic Salary</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-lg-4 mb-3">
-                                        <div class="form-floating">
-                                            <input type="number" class="form-control" id="allowances" placeholder="0">
-                                            <label for="allowances">Allowances</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-lg-4 mb-3">
-                                        <div class="form-floating">
-                                            <input type="number" class="form-control" id="deductions" placeholder="0">
-                                            <label for="deductions">Deductions</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-lg-4 mb-3">
-                                        <div class="form-floating">
-                                            <input type="number" class="form-control" id="bonus" placeholder="0">
-                                            <label for="bonus">Bonus</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-lg-4 mb-3">
-                                        <div class="form-floating">
-                                            <input type="number" class="form-control" id="overtime" placeholder="0">
-                                            <label for="overtime">Overtime</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-lg-4 mb-3">
-                                        <div class="form-floating">
-                                            <input type="number" class="form-control" id="tax" placeholder="0">
-                                            <label for="tax">Tax</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h6 class="mb-0">Leave and Attendance</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6 col-lg-4 mb-3">
-                                        <div class="form-floating">
-                                            <input type="number" class="form-control" id="presentDays" placeholder="0" required>
-                                            <label for="presentDays">Present Days</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-lg-4 mb-3">
-                                        <div class="form-floating">
-                                            <input type="number" class="form-control" id="absentDays" placeholder="0">
-                                            <label for="absentDays">Absent Days</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-lg-4 mb-3">
-                                        <div class="form-floating">
-                                            <input type="number" class="form-control" id="leaveDays" placeholder="0">
-                                            <label for="leaveDays">Leave Days</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="text-end">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary" onclick="generatePayroll(event)">Generate Payroll</button>
                         </div>
                     </form>
                 </div>
@@ -2924,7 +3178,450 @@
         // Form submission handlers
         function submitAttendanceForm(event) {
             event.preventDefault();
-            // Add your attendance form submission logic here
+            
+            // Gather form data
+            const employeeId = document.getElementById('employeeId').value;
+            const attendanceDate = document.getElementById('attendanceDate').value;
+            const attendanceStatus = document.getElementById('attendanceStatus').value;
+            const checkInTime = document.getElementById('checkInTime').value;
+            const checkOutTime = document.getElementById('checkOutTime').value;
+            
+            // Validate form
+            if (!employeeId || !attendanceDate || !attendanceStatus) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Required Fields Missing',
+                    text: 'Please fill in all required fields.',
+                    confirmButtonColor: '#3085d6'
+                });
+                return;
+            }
+            
+            // Create payload
+            const attendanceData = {
+                employee_id: employeeId,
+                date: attendanceDate,
+                status: attendanceStatus,
+                check_in: checkInTime,
+                check_out: checkOutTime
+            };
+            
+            // Show loading state
+            const submitButton = event.target;
+            const originalText = submitButton.innerHTML;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+            submitButton.disabled = true;
+            
+            // Send to server (mock API call)
+            setTimeout(() => {
+                // This is a mock - replace with actual fetch/AJAX call
+                /*
+                fetch('/api/attendance', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify(attendanceData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    handleAttendanceResponse(data, 'created');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showErrorAlert();
+                })
+                .finally(() => {
+                    submitButton.innerHTML = originalText;
+                    submitButton.disabled = false;
+                });
+                */
+                
+                // Mock success response
+                const mockResponse = { success: true };
+                handleAttendanceResponse(mockResponse, 'created');
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+            }, 1500);
+        }
+        
+        function updateAttendanceForm(event) {
+            event.preventDefault();
+            
+            // Gather form data
+            const attendanceId = document.getElementById('editAttendanceId').value;
+            const attendanceDate = document.getElementById('editAttendanceDate').value;
+            const attendanceStatus = document.getElementById('editAttendanceStatus').value;
+            const checkInTime = document.getElementById('editCheckInTime').value;
+            const checkOutTime = document.getElementById('editCheckOutTime').value;
+            
+            // Validate form
+            if (!attendanceDate || !attendanceStatus) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Required Fields Missing',
+                    text: 'Please fill in all required fields.',
+                    confirmButtonColor: '#3085d6'
+                });
+                return;
+            }
+            
+            // Create payload
+            const attendanceData = {
+                id: attendanceId,
+                date: attendanceDate,
+                status: attendanceStatus,
+                check_in: checkInTime,
+                check_out: checkOutTime
+            };
+            
+            // Show loading state
+            const submitButton = event.target;
+            const originalText = submitButton.innerHTML;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+            submitButton.disabled = true;
+            
+            // Send to server (mock API call)
+            setTimeout(() => {
+                // Mock success response
+                const mockResponse = { success: true };
+                handleAttendanceResponse(mockResponse, 'updated');
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+            }, 1500);
+        }
+        
+        function handleAttendanceResponse(data, action) {
+            if (data.success) {
+                // Close modal
+                const modals = ['attendanceModal', 'editAttendanceModal'];
+                modals.forEach(modalId => {
+                    const modalElement = document.getElementById(modalId);
+                    if (modalElement) {
+                        const modal = bootstrap.Modal.getInstance(modalElement);
+                        if (modal) modal.hide();
+                    }
+                });
+                
+                // Reset form
+                document.getElementById('attendanceForm').reset();
+                if (document.getElementById('editAttendanceForm')) {
+                    document.getElementById('editAttendanceForm').reset();
+                }
+                
+                // Show success message
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: `Attendance ${action} successfully.`,
+                    confirmButtonColor: '#3085d6'
+                });
+                
+                // Refresh attendance data
+                refreshAttendanceTable();
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: data.message || `Failed to ${action} attendance record.`,
+                    confirmButtonColor: '#3085d6'
+                });
+            }
+        }
+        
+        function refreshAttendanceTable() {
+            // This would typically fetch updated data from the server
+            console.log('Refreshing attendance table...');
+            // For demo purposes, we'll just simulate an update
+            document.getElementById('todayAttendanceCount').textContent = '2/5';
+        }
+        
+        function openEditAttendanceModal() {
+            // Close view modal
+            const viewModal = bootstrap.Modal.getInstance(document.getElementById('viewAttendanceModal'));
+            if (viewModal) viewModal.hide();
+            
+            // Open edit modal
+            setTimeout(() => {
+                const editModal = new bootstrap.Modal(document.getElementById('editAttendanceModal'));
+                editModal.show();
+            }, 500);
+        }
+        
+        function deleteAttendance() {
+            const attendanceId = document.getElementById('deleteAttendanceId').value;
+            
+            Swal.fire({
+                title: 'Deleting...',
+                text: 'Please wait while we process your request.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            // Mock API call
+            setTimeout(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Deleted!',
+                    text: 'Attendance record has been deleted successfully.',
+                    confirmButtonColor: '#3085d6'
+                });
+                
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('deleteAttendanceModal'));
+                if (modal) modal.hide();
+                
+                // Refresh attendance data
+                refreshAttendanceTable();
+            }, 1500);
+        }
+        
+        function saveDeviceSettings() {
+            // Gather form data
+            const deviceIp = document.getElementById('deviceIp').value;
+            const devicePort = document.getElementById('devicePort').value;
+            const deviceUsername = document.getElementById('deviceUsername').value;
+            const devicePassword = document.getElementById('devicePassword').value;
+            const syncFrequency = document.getElementById('syncFrequency').value;
+            const dailySyncTime = document.getElementById('dailySyncTime').value;
+            const autoSyncEnabled = document.getElementById('autoSyncEnabled').checked;
+            
+            // Validate required fields
+            if (!deviceIp) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Required Fields Missing',
+                    text: 'Please enter the device IP address.',
+                    confirmButtonColor: '#3085d6'
+                });
+                return;
+            }
+            
+            // Create settings object
+            const settings = {
+                ip: deviceIp,
+                port: devicePort,
+                username: deviceUsername,
+                password: devicePassword,
+                syncFrequency: syncFrequency,
+                dailySyncTime: dailySyncTime,
+                autoSyncEnabled: autoSyncEnabled
+            };
+            
+            // Save to localStorage for demo purposes
+            localStorage.setItem('attendanceDeviceSettings', JSON.stringify(settings));
+            
+            // Show success message
+            Swal.fire({
+                icon: 'success',
+                title: 'Settings Saved',
+                text: 'Device settings have been saved successfully.',
+                confirmButtonColor: '#3085d6'
+            });
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('deviceSettingsModal'));
+            if (modal) modal.hide();
+            
+            // Update device info
+            updateDeviceInfo();
+        }
+        
+        function testDeviceConnection() {
+            const deviceIp = document.getElementById('deviceIp').value;
+            const devicePort = document.getElementById('devicePort').value;
+            
+            if (!deviceIp) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Required Fields Missing',
+                    text: 'Please enter the device IP address.',
+                    confirmButtonColor: '#3085d6'
+                });
+                return;
+            }
+            
+            // Show testing message
+            Swal.fire({
+                title: 'Testing Connection',
+                text: `Connecting to device at ${deviceIp}${devicePort ? ':'+devicePort : ''}...`,
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            // Mock connection test
+            setTimeout(() => {
+                // Randomly succeed or fail for demo purposes
+                const success = Math.random() > 0.3;
+                
+                if (success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Connection Successful',
+                        text: 'Successfully connected to the attendance device.',
+                        confirmButtonColor: '#3085d6'
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Connection Failed',
+                        text: 'Could not connect to the attendance device. Please check the settings and try again.',
+                        confirmButtonColor: '#3085d6'
+                    });
+                }
+            }, 2000);
+        }
+        
+        function updateDeviceInfo() {
+            // Get settings from localStorage
+            const settings = JSON.parse(localStorage.getItem('attendanceDeviceSettings') || '{}');
+            
+            // Update UI
+            if (settings.ip) {
+                document.getElementById('deviceInfo').textContent = `${settings.ip}${settings.port ? ':'+settings.port : ''}`;
+                document.getElementById('deviceStatus').textContent = settings.autoSyncEnabled ? 'Connected' : 'Configured';
+                
+                // Update form fields when opening modal
+                document.getElementById('deviceIp').value = settings.ip || '';
+                document.getElementById('devicePort').value = settings.port || '';
+                document.getElementById('deviceUsername').value = settings.username || '';
+                document.getElementById('devicePassword').value = settings.password || '';
+                document.getElementById('syncFrequency').value = settings.syncFrequency || '0';
+                document.getElementById('dailySyncTime').value = settings.dailySyncTime || '';
+                document.getElementById('autoSyncEnabled').checked = settings.autoSyncEnabled || false;
+            }
+        }
+        
+        function sendAttendanceReport() {
+            // Gather form data
+            const reportType = document.getElementById('reportType').value;
+            const reportFormat = document.getElementById('reportFormat').value;
+            const recipientEmail = document.getElementById('recipientEmail').value;
+            const emailSubject = document.getElementById('emailSubject').value || 'Attendance Report';
+            
+            // Validate required fields
+            if (!recipientEmail) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Required Fields Missing',
+                    text: 'Please enter recipient email address.',
+                    confirmButtonColor: '#3085d6'
+                });
+                return;
+            }
+            
+            // Show sending message
+            Swal.fire({
+                title: 'Sending Report',
+                text: 'Please wait while we generate and send the report...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            // Mock sending report
+            setTimeout(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Report Sent',
+                    text: `The attendance report has been sent to ${recipientEmail} successfully.`,
+                    confirmButtonColor: '#3085d6'
+                });
+                
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('emailReportModal'));
+                if (modal) modal.hide();
+                
+                // Reset form
+                document.getElementById('emailReportForm').reset();
+            }, 3000);
+        }
+        
+        // Load settings when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize attendance date with current date
+            const today = new Date().toISOString().split('T')[0];
+            if (document.getElementById('attendanceDate')) {
+                document.getElementById('attendanceDate').value = today;
+            }
+            
+            // Load device settings
+            updateDeviceInfo();
+            
+            // Set up report type change handler
+            const reportTypeSelect = document.getElementById('reportType');
+            if (reportTypeSelect) {
+                reportTypeSelect.addEventListener('change', function() {
+                    const dateRangeInputs = document.querySelectorAll('.date-range-inputs');
+                    if (this.value === 'custom') {
+                        dateRangeInputs.forEach(el => el.style.display = 'block');
+                    } else {
+                        dateRangeInputs.forEach(el => el.style.display = 'none');
+                    }
+                });
+            }
+            
+            // Initialize todays attendance count
+            document.getElementById('todayAttendanceCount').textContent = '2/5';
+            
+            // For demo purposes, set a random number for anomalies
+            document.getElementById('attendanceAnomalies').textContent = Math.floor(Math.random() * 3);
+        });
+        
+        function syncAttendanceDevice() {
+            Swal.fire({
+                title: 'Syncing with Device',
+                text: 'Please wait while we sync with the attendance device...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            // Mock sync process
+            setTimeout(() => {
+                // Update last sync info
+                const now = new Date();
+                document.getElementById('lastSyncTime').textContent = now.toLocaleString();
+                document.getElementById('lastSyncStatus').textContent = 'Synced successfully';
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Sync Complete',
+                    text: 'Attendance data has been synchronized successfully.',
+                    confirmButtonColor: '#3085d6'
+                });
+                
+                // Update attendance count for demo purposes
+                document.getElementById('todayAttendanceCount').textContent = '5/5';
+            }, 2500);
+        }
+        
+        function exportAttendance(format) {
+            Swal.fire({
+                title: `Exporting as ${format.toUpperCase()}`,
+                text: 'Please wait while we generate your file...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            // Mock export process
+            setTimeout(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Export Complete',
+                    text: `Attendance data has been exported as ${format.toUpperCase()}.`,
+                    confirmButtonColor: '#3085d6'
+                });
+            }, 2000);
         }
 
         function submitLeaveRequestForm(event) {
@@ -2932,10 +3629,7 @@
             // Add your leave request form submission logic here
         }
 
-        function generatePayroll(event) {
-            event.preventDefault();
-            // Add your payroll generation logic here
-        }
+
 
         function submitPerformanceReview(event) {
             event.preventDefault();
@@ -2958,6 +3652,98 @@
         }
     </script>
 @endsection
+
+<!-- Device Settings Modal -->
+<div class="modal fade" id="deviceSettingsModal" tabindex="-1" aria-labelledby="deviceSettingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deviceSettingsModalLabel">Attendance Device Settings</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="deviceSettingsForm">
+                    <div class="mb-3">
+                        <label for="deviceIp" class="form-label">Device IP Address</label>
+                        <input type="text" class="form-control" id="deviceIp" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="devicePort" class="form-label">Port</label>
+                        <input type="number" class="form-control" id="devicePort" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="deviceModel" class="form-label">Device Model</label>
+                        <select class="form-select" id="deviceModel" required>
+                            <option value="">Select Device Model</option>
+                            <option value="zk">ZKTeco</option>
+                            <option value="anviz">Anviz</option>
+                            <option value="hikvision">Hikvision</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="syncInterval" class="form-label">Auto-Sync Interval (minutes)</label>
+                        <input type="number" class="form-control" id="syncInterval" min="5" value="15">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="saveDeviceSettings()">Save Settings</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Email Report Modal -->
+<div class="modal fade" id="emailReportModal" tabindex="-1" aria-labelledby="emailReportModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="emailReportModalLabel">Email Attendance Report</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="emailReportForm">
+                    <div class="mb-3">
+                        <label for="reportEmail" class="form-label">Email Address</label>
+                        <input type="email" class="form-control" id="reportEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="reportFormat" class="form-label">Report Format</label>
+                        <select class="form-select" id="reportFormat" required>
+                            <option value="pdf">PDF</option>
+                            <option value="excel">Excel</option>
+                            <option value="csv">CSV</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="dateRange" class="form-label">Date Range</label>
+                        <select class="form-select" id="dateRange" required>
+                            <option value="today">Today</option>
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                            <option value="custom">Custom Range</option>
+                        </select>
+                    </div>
+                    <div id="customDateRange" class="row d-none">
+                        <div class="col-md-6 mb-3">
+                            <label for="startDate" class="form-label">Start Date</label>
+                            <input type="date" class="form-control" id="startDate">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="endDate" class="form-label">End Date</label>
+                            <input type="date" class="form-control" id="endDate">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="sendEmailReport()">Send Report</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section('script')
     <script>
@@ -2987,7 +3773,7 @@
                 'employee-management': showAddEmployeeModal,
                 'attendance': showAttendanceModal,
                 'leave-requests': showLeaveRequestModal,
-                'payroll': showPayrollModal,
+
                 'performance': showPerformanceReviewModal,
                 'job-postings': showJobPostingModal,
                 'exit-process': showExitProcessModal,
@@ -3024,10 +3810,7 @@
             modal.show();
         }
 
-        function showPayrollModal() {
-            var modal = new bootstrap.Modal(document.getElementById('payrollModal'));
-            modal.show();
-        }
+
 
         function showPerformanceReviewModal() {
             var modal = new bootstrap.Modal(document.getElementById('performanceReviewModal'));
@@ -3215,6 +3998,248 @@
         }
 
         // Load table on page load
-        document.addEventListener('DOMContentLoaded', loadEmployeeTable);
+        document.addEventListener('DOMContentLoaded', () => {
+            loadEmployeeTable();
+            initializeAttendanceSync();
+        });
+
+        // Attendance Device Integration
+        let syncInterval;
+
+        function initializeAttendanceSync() {
+            // Load saved device settings
+            const settings = JSON.parse(localStorage.getItem('attendanceDeviceSettings') || '{}');
+            if (settings.deviceIp) {
+                document.getElementById('deviceIp').value = settings.deviceIp;
+                document.getElementById('devicePort').value = settings.devicePort;
+                document.getElementById('deviceModel').value = settings.deviceModel;
+                document.getElementById('syncInterval').value = settings.syncInterval;
+                
+                // Update device info display
+                updateDeviceInfo(settings);
+                
+                // Start auto-sync if interval is set
+                if (settings.syncInterval) {
+                    startAutoSync(settings.syncInterval);
+                }
+            }
+        }
+
+        function saveDeviceSettings() {
+            const settings = {
+                deviceIp: document.getElementById('deviceIp').value,
+                devicePort: document.getElementById('devicePort').value,
+                deviceModel: document.getElementById('deviceModel').value,
+                syncInterval: parseInt(document.getElementById('syncInterval').value)
+            };
+
+            localStorage.setItem('attendanceDeviceSettings', JSON.stringify(settings));
+            updateDeviceInfo(settings);
+            startAutoSync(settings.syncInterval);
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('deviceSettingsModal'));
+            modal.hide();
+            
+            // Show success message
+            showToast('Settings saved successfully', 'success');
+        }
+
+        function updateDeviceInfo(settings) {
+            document.getElementById('deviceInfo').textContent = 
+                `${settings.deviceModel.toUpperCase()} - ${settings.deviceIp}:${settings.devicePort}`;
+            checkDeviceConnection(settings);
+        }
+
+        function startAutoSync(interval) {
+            // Clear existing interval if any
+            if (syncInterval) {
+                clearInterval(syncInterval);
+            }
+            
+            // Set new interval
+            if (interval) {
+                syncInterval = setInterval(() => syncAttendanceDevice(), interval * 60 * 1000);
+            }
+        }
+
+        async function checkDeviceConnection(settings) {
+            try {
+                const response = await fetch('/api/attendance/check-device', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify(settings)
+                });
+
+                const data = await response.json();
+                document.getElementById('deviceStatus').textContent = 
+                    data.connected ? 'Online' : 'Offline';
+                document.getElementById('deviceStatus').className = 
+                    `text-${data.connected ? 'success' : 'danger'}`;
+            } catch (error) {
+                console.error('Error checking device connection:', error);
+                document.getElementById('deviceStatus').textContent = 'Error';
+                document.getElementById('deviceStatus').className = 'text-danger';
+            }
+        }
+
+        async function syncAttendanceDevice() {
+            const settings = JSON.parse(localStorage.getItem('attendanceDeviceSettings') || '{}');
+            if (!settings.deviceIp) {
+                showToast('Please configure device settings first', 'warning');
+                return;
+            }
+
+            try {
+                document.getElementById('lastSyncStatus').textContent = 'Syncing...';
+                
+                const response = await fetch('/api/attendance/sync-device', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify(settings)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('lastSyncStatus').textContent = 
+                        `Successfully synced ${data.recordsCount} records`;
+                    document.getElementById('lastSyncTime').textContent = 
+                        new Date().toLocaleString();
+                    showToast('Sync completed successfully', 'success');
+                } else {
+                    throw new Error(data.message || 'Sync failed');
+                }
+            } catch (error) {
+                console.error('Error syncing attendance:', error);
+                document.getElementById('lastSyncStatus').textContent = 
+                    `Sync failed: ${error.message}`;
+                showToast('Failed to sync with attendance device', 'error');
+            }
+        }
+
+        // Export attendance data
+        async function exportAttendance(format) {
+            try {
+                const response = await fetch(`/api/attendance/export/${format}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Export failed');
+                }
+
+                // Handle different response types
+                if (format === 'csv' || format === 'excel') {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `attendance_report.${format === 'excel' ? 'xlsx' : 'csv'}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    a.remove();
+                } else if (format === 'pdf') {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    window.open(url, '_blank');
+                }
+
+                showToast(`Successfully exported attendance data as ${format.toUpperCase()}`, 'success');
+            } catch (error) {
+                console.error('Error exporting attendance:', error);
+                showToast(`Failed to export attendance data: ${error.message}`, 'error');
+            }
+        }
+
+        // Handle date range selection
+        document.getElementById('dateRange')?.addEventListener('change', function() {
+            const customRange = document.getElementById('customDateRange');
+            if (this.value === 'custom') {
+                customRange.classList.remove('d-none');
+            } else {
+                customRange.classList.add('d-none');
+            }
+        });
+
+        // Send email report
+        async function sendEmailReport() {
+            const email = document.getElementById('reportEmail').value;
+            const format = document.getElementById('reportFormat').value;
+            const dateRange = document.getElementById('dateRange').value;
+            let startDate = null;
+            let endDate = null;
+
+            if (dateRange === 'custom') {
+                startDate = document.getElementById('startDate').value;
+                endDate = document.getElementById('endDate').value;
+                if (!startDate || !endDate) {
+                    showToast('Please select both start and end dates', 'warning');
+                    return;
+                }
+            }
+
+            try {
+                const response = await fetch('/api/attendance/email-report', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        email,
+                        format,
+                        dateRange,
+                        startDate,
+                        endDate
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    showToast('Report has been sent to your email', 'success');
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('emailReportModal'));
+                    modal.hide();
+                } else {
+                    throw new Error(data.message || 'Failed to send report');
+                }
+            } catch (error) {
+                console.error('Error sending email report:', error);
+                showToast(`Failed to send report: ${error.message}`, 'error');
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-white bg-${type} border-0`;
+            toast.setAttribute('role', 'alert');
+            toast.setAttribute('aria-live', 'assertive');
+            toast.setAttribute('aria-atomic', 'true');
+            
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">${message}</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+            
+            // Remove toast after it's hidden
+            toast.addEventListener('hidden.bs.toast', () => toast.remove());
+        }
     </script>
 @endsection

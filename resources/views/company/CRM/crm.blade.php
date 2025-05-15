@@ -2054,15 +2054,15 @@
     <!-- Navigation Pills -->
     <div class="container-fluid">
         <ul class="nav nav-tabs" id="crmTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {{ isset($activeTab) && $activeTab == 'customer' ? 'active' : '' }}" id="customer-tab" data-bs-toggle="tab" data-bs-target="#customer-tab-pane" type="button" role="tab" aria-controls="customer-tab-pane" aria-selected="{{ isset($activeTab) && $activeTab == 'customer' ? 'true' : 'false' }}">
+                    <i class="fas fa-users me-1"></i>Customers  
+                </button>
+            </li>
             <!-- Leads Tab -->
             <li class="nav-item" role="presentation">
                 <button class="nav-link {{ (!isset($activeTab) || $activeTab == 'leads') ? 'active' : '' }}" id="leads-tab" data-bs-toggle="tab" data-bs-target="#leads-tab-pane" type="button" role="tab" aria-controls="leads-tab-pane" aria-selected="{{ (!isset($activeTab) || $activeTab == 'leads') ? 'true' : 'false' }}">
                     <i class="fas fa-user me-1"></i>Leads
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link {{ isset($activeTab) && $activeTab == 'customer' ? 'active' : '' }}" id="customer-tab" data-bs-toggle="tab" data-bs-target="#customer-tab-pane" type="button" role="tab" aria-controls="customer-tab-pane" aria-selected="{{ isset($activeTab) && $activeTab == 'customer' ? 'true' : 'false' }}">
-                    <i class="fas fa-users me-1"></i>Customers  
                 </button>
             </li>
             <li class="nav-item" role="presentation">
@@ -2099,10 +2099,6 @@
 
         <!-- Tab Content -->
         <div class="tab-content mt-3" id="crmTabsContent">
-            <!-- Leads Tab -->
-            <div class="tab-pane fade {{ (!isset($activeTab) || $activeTab == 'leads') ? 'show active' : '' }}" id="leads-tab-pane" role="tabpanel" aria-labelledby="leads-tab" tabindex="0">
-                @include('company.CRM.crm-leads', ['leads' => \App\Models\CrmLeads::where('company_id', session('selected_company_id'))->orderBy('created_at', 'desc')->get()])
-            </div>
             <!-- Customer Tab -->
             <div class="tab-pane fade {{ isset($activeTab) && $activeTab == 'customer' ? 'show active' : '' }}" id="customer-tab-pane" role="tabpanel" aria-labelledby="customer-tab" tabindex="0">
                 @php
@@ -2110,6 +2106,11 @@
                     $dashboardStats = $customerManagement->getDashboardStats();
                 @endphp
                 @include('company.CRM.crm-customer', ['customers' => $customers ?? \App\Models\Customer::where('company_id', session('selected_company_id'))->orderBy('created_at', 'desc')->get()])
+            </div>
+
+            <!-- Leads Tab -->
+            <div class="tab-pane fade {{ (!isset($activeTab) || $activeTab == 'leads') ? 'show active' : '' }}" id="leads-tab-pane" role="tabpanel" aria-labelledby="leads-tab" tabindex="0">
+                @include('company.CRM.crm-leads', ['leads' => \App\Models\CrmLeads::where('company_id', session('selected_company_id'))->orderBy('created_at', 'desc')->get()])
             </div>
 
             <!-- Opportunities Tab -->
