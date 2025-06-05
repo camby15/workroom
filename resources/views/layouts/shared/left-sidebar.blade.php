@@ -60,7 +60,7 @@
                             <a href="{{ route('any','superAdmin/dashboard') }}">Dashboard</a>
                         </li>
                         <li>
-                            <a href="{{ route('any','superAdmin/users') }}">Users</a>
+                            <a href="{{ route('any','superAdmin/superusers') }}">SuperUsers</a>
                         </li>
                         <li>
                             <a href="{{ route('any','superAdmin/roles') }}">Roles & Permissions</a>
