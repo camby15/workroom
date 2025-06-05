@@ -96,6 +96,23 @@ Route::group(['middleware' => 'auth'], function () {
         return back();
     })->name('setCurrency');
 
+    // Superusers Management cb88 Routes
+    Route::prefix('superadmin')->name('superadmin.')->middleware('auth')->group(function () {
+        Route::prefix('users')->name('users.')->group(function () {
+            Route::get('/', [App\Http\Controllers\SuperAdmin\SuperuserController::class, 'index'])->name('index');
+            Route::get('/create', [App\Http\Controllers\SuperAdmin\SuperuserController::class, 'create'])->name('create');
+            Route::post('/', [App\Http\Controllers\SuperAdmin\SuperuserController::class, 'store'])->name('store');
+            Route::get('/{user}/edit', [App\Http\Controllers\SuperAdmin\SuperuserController::class, 'edit'])->name('edit');
+            Route::put('/{user}', [App\Http\Controllers\SuperAdmin\SuperuserController::class, 'update'])->name('update');
+            Route::delete('/{user}', [App\Http\Controllers\SuperAdmin\SuperuserController::class, 'destroy'])->name('destroy');
+            Route::post('/{user}/toggle-status', [App\Http\Controllers\SuperAdmin\SuperuserController::class, 'toggleStatus'])->name('toggle-status');
+            Route::post('/export', [App\Http\Controllers\SuperAdmin\SuperuserController::class, 'export'])->name('export');
+            Route::post('/import', [App\Http\Controllers\SuperAdmin\SuperuserController::class, 'import'])->name('import');
+            Route::get('/download-template', [App\Http\Controllers\SuperAdmin\SuperuserController::class, 'downloadTemplate'])->name('download-template');
+            Route::put('/{user}/update-role', [App\Http\Controllers\SuperAdmin\SuperuserController::class, 'updateRole'])->name('update-role');
+        });
+    });
+
     // Company Sub Users Management Routes
     Route::prefix('company')->name('company-sub-users.')->group(function () {
         Route::get('/users', [CompanySubUserController::class, 'index'])->name('index');
